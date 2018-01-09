@@ -1,0 +1,8 @@
+{
+  "name": "Insys_Fresh_Vegetables_Mobile",
+  "app_id": "",
+  "type": "ionic-angular",
+  "integrations": {
+    "cordova": {}
+  }
+}

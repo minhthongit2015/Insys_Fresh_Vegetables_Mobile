@@ -1,0 +1,616 @@
+
+$effect: false;
+$light: true;
+$bgs: "background.png", "bg-01.jpg", "bg-02.jpg", "bg-03.jpg", "bg-04.jpg", "bg-05.jpg", "bg-06.jpg", "bg-07.jpg";
+$bg: nth($bgs, 1+6);
+
+@if $bg == nth($bgs, 1) {
+  $light: false;
+}
+
+page-home {
+
+  ion-content {
+    background: url('../assets/UI/background/'+$bg) center center/cover fixed no-repeat;
+    overflow: hidden;
+  }
+
+  .background {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+
+    header {
+      width: 100%;
+      height: 120px;
+      @if $light == true {
+        background: rgba(0, 0, 0, 0.36);
+      } @else {
+        background: rgba(255,255,255,.12);
+      }
+
+      .breadscrumb {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        height: 100%;
+        opacity: 0;
+        visibility: hidden;
+        @if $effect == true {
+          transition: .3s all ease-in-out;
+        }
+
+        &.show {
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .breadscrumb-bridge {
+          height: 4px;
+          background: linear-gradient(to right, rgba(227, 237, 255, 0.72) 0, rgba(255, 255, 255, 0.9) 90%);
+          position: absolute;
+          left: calc(29% + 8px);
+          opacity: 0;
+          width: 0;
+          @if $effect == true {
+            transition: .2s all ease-in-out .2s;
+          }
+
+          &.show {
+            @if $effect == true {
+              transition: .2s all ease-in-out;
+            }
+            opacity: 1;
+            width: calc(9.3% - 12px);
+          }
+        }
+        .selected-plant, .current-page, .btn-back {
+          width: calc(24% + 6px);
+          height: 0;
+          padding-top: 24%;
+          border-radius: 50%;
+          background: rgba(227, 237, 255, 0.38) center/80% no-repeat;
+          position: relative;
+          display: flex;
+          box-sizing: border-box;
+          @if $effect == true {
+            transition: all .3s ease-in-out;
+          }
+        }
+        .selected-plant {
+          border: 3px solid rgba(227, 237, 255, .72);
+        }
+        .current-page {
+          border: 4px solid rgba(255, 255, 255, .9);
+          background: center/75% no-repeat;
+          width: calc(24% + 8px);
+          opacity: 0;
+          @if $effect == true {
+            transition: .3s all ease-in-out;
+            filter: drop-shadow(0 0 10px #aaa) drop-shadow(0 0 2px #fff);
+          }
+
+          &.show {
+            @if $effect == true {
+              transition: .3s all ease-in-out .2s;
+            }
+            opacity: 1;
+          }
+          &.camera {
+            background: url("../assets/UI/icon/camera.svg") center/100% no-repeat;
+          }
+          &.details {
+            background: url("../assets/UI/icon/notebook.svg") center/100% no-repeat;
+          }
+        }
+        .btn-back {
+          border: 3px solid rgba(227, 237, 255, 1);
+          background: transparent url("../assets/UI/icon/back.svg") center/50% no-repeat;
+        }
+      }
+    }
+  
+    #body {
+      position: relative;
+      height: calc(100% - 204px);
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      align-content: flex-start;
+
+      .plant {
+        width: 25%;
+        margin: 4.16666%;
+        margin-bottom: 0;
+        height: 0;
+        padding-top: 25%;
+        border-radius: 50%;
+        background: rgba(255,255,255,.37);
+        position: relative;
+        &:empty {
+          visibility: hidden;
+          opacity: 0;
+          padding: 0;
+          margin-top: 0;
+          margin-bottom: 0;
+        }
+
+        .plant-icon {
+          position: absolute;
+          top: 15%;
+          left: 15%;
+          width: 70%;
+          height: 70%;
+          @if $effect == true {
+            filter: drop-shadow(4px 4px 2px #000);
+          }
+
+          &.btn-addnew {
+            background: url("../assets/UI/icon/plus.svg") center center/80% no-repeat;
+            filter: none;
+          }
+        }
+      }
+
+      #quickview-panel {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        background: url("../assets/UI/background/quickview-panel.svg") center 100%/100% no-repeat;
+        display: flex;
+        align-items: flex-end;
+        opacity: 0;
+        visibility: hidden;
+        @if $effect == true {
+          transition: all .3s ease-in-out;
+        }
+        @if $light == true {
+          background-image: url("../assets/UI/background/quickview-panel-light.svg");
+        }
+
+        &.show {
+          opacity: 1;
+          visibility: visible;
+        }
+
+        &.expand {
+          background-image: url("../assets/UI/background/details-panel.svg");
+          background-position: center 5px;
+          background-size: cover;
+          height: 100%;
+          @if $light == true {
+            background-image: url("../assets/UI/background/details-panel-light.svg");
+          }
+
+          .selected-plant-icon {
+            margin-bottom: 8px !important;
+            .connection-light {
+              bottom: 5px !important;
+            }
+          }
+          .quickview-panel-body {
+            height: 70% !important;
+            overflow: auto !important;
+            flex-grow: 10 !important;
+          }
+        }
+        
+        * { pointer-events: initial; }
+
+        .quickview-panel-inner {
+          pointer-events: none;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+
+          * { pointer-events: initial; }
+
+          .selected-plant-nav {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: flex-end;
+            width: 100%;
+            height: 0;
+            padding-top: 30%;
+            position: relative;
+
+            .selected-plant-icon {
+              width: 24%;
+              height: 0;
+              padding-top: 24%;
+              margin: 0 26px 26px;
+              display: flex;
+              justify-content: center;
+              @if $effect == true {
+                transition: all .3s ease-in-out;
+                filter: drop-shadow(0 0 15px #fff) drop-shadow(0 0 35px #fff);
+              }
+            }
+            .selected-plant-camera, .selected-plant-detail {
+              width: 24%;
+              height: 0;
+              padding-top: 17%;
+              background: url("../assets/UI/icon/camera.svg") center center/100% no-repeat
+            }
+            .selected-plant-detail {
+              background-image: url("../assets/UI/icon/notebook.svg");
+            }
+            .connection-light {
+              width: 5%;
+              height: 0;
+              padding-top: calc(5% - 2px);
+              border-radius: 50%;
+              background: #999;
+              border: 1px solid #fff;
+              position: absolute;
+              box-sizing: border-box;
+              bottom: 22px;
+              &.connecting {
+                background: #caa31a;
+              }
+              &.online {
+                background: #24be3d;
+              }
+            }
+          }
+
+          .quickview-panel-body {
+            width: 100%;
+            height: auto;
+            flex-grow: initial;
+
+            .plant-details {
+              opacity: 0;
+              visibility: hidden;
+              max-height: 0;
+              overflow: hidden;
+              @if $effect == true {
+                transition: all .3s ease-in-out;
+              }
+  
+              &.show {
+                opacity: 1;
+                visibility: visible;
+                max-height: 600px;
+              }
+              .plant-details-group {
+                padding: 4px 10px;
+                font-size: 20px;
+                
+                .plant-details-label {
+                  color: #fff;
+                  background: rgba(0,2,21,.45);
+                  padding: 4px 6px;
+                }
+                .plant-details-head  {
+                  display: flex;
+                  justify-content: space-evenly;
+
+                  .plant-btn-label {
+                    background: rgba(255,255,255,.5);
+                    padding: 4px 6px;
+                    width: 50%;
+                    text-align: center;
+                    color: #222;
+
+                    &.checked {
+                      background: rgba(50, 215, 54, .45);
+                      color: #fff;
+                    }
+                    &.checked.special {
+                      background: rgba(30, 163, 244, .44);
+                    }
+                    &:active {
+                      opacity: 0.5;
+                    }
+                  }
+                }
+                .plant-details-body {
+                  border: 1px solid rgba(50, 215, 54, 0.45);
+                  padding: 5px 5px 0px;
+                  background: rgba(255,255,255,.2);
+
+                  table.plant-btn-hidden-group {
+                    width: 100%;
+                    display: none;
+
+                    &.show {
+                      display: table;
+                    }
+
+                    tr {
+                      td {
+                        color: #dedede;
+                        vertical-align: middle;
+                        text-align: center;
+                        border-bottom: 1px solid #aaa;
+                      }
+                      td:first-child {
+                        text-align: left;
+                      }
+                      &:last-child > td {
+                        border-bottom: none;
+                      }
+  
+                      .btn-switch {
+                        position: relative;
+                        display: inline-block;
+                        width: 60px;
+                        height: 30px;
+                        user-select: none;
+                        margin: 4px auto -2px;
+  
+                        input {
+                          display: none;
+                        }
+                        input:checked + .btn-slider {
+                          background-color: rgba(135,255,123,.44);
+                          &:before {
+                            transform: translateX(26px);
+                          }
+                        }
+  
+                        .btn-slider {
+                          position: absolute;
+                          cursor: pointer;
+                          top: 0;
+                          left: 0;
+                          right: 0;
+                          bottom: 0;
+                          background-color: rgba(200,200,200,.4);
+                          -webkit-transition: .4s;
+                          transition: .4s;
+    
+                          &::before {
+                            position: absolute;
+                            content: "";
+                            height: 22px;
+                            width: 26px;
+                            left: 4px;
+                            bottom: 4px;
+                            background-color: white;
+                            -webkit-transition: .4s;
+                            transition: .4s;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                .plant-envs {
+                  padding: 5px;
+                  background: rgba(255,255,255,.2);
+                  color: #dedede;
+                  table {
+                    width: 100%;
+                    td {
+                      text-align: center;
+                      line-height: 37px;
+                      border-bottom: 1px solid #aaa;
+                    }
+                    td:first-child {
+                      text-align: left;
+                    }
+                    tr:last-child > td {
+                      border-bottom: none;
+                    }
+                  }
+                }
+              }
+              .plant-realtime-chart-wrapper {
+                border: 1px solid #fff;
+                width: 100%;
+                height: 0;
+                padding-top: 42%;
+                position: relative;
+                margin: 0 0 6px;
+  
+                .plant-realtime-chart {
+                  position: absolute;
+                  top: 0; left: 0;
+                  width: 100%;
+                  height: 100%;
+                }
+              }
+            }
+  
+            .camera-panel-wrapper {
+              opacity: 0;
+              visibility: hidden;
+              max-height: 0;
+              position: relative;
+              width: calc(100% - 16px);
+              height: 0;
+              padding-top: 0;
+              margin: 0;
+              @if $effect == true {
+                transition: .3s all ease-in-out;
+              }
+  
+              &.show {
+                opacity: 1;
+                visibility: visible;
+                max-height: 400px;
+                padding-top: 55%;
+                margin: 4px 8px 20px;
+              }
+              .camera-panel {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+              }
+            }
+  
+            .selected-plant-timeline {
+              margin: 0 auto 20px;
+              background: #fff;
+              width: 80%;
+              height: 25px;
+              border-radius: 10px;
+              border: 3px solid rgba(255, 255, 255, 0.35);
+              background-clip: content-box;
+              position: relative;
+  
+              &::after {
+                content: attr(data-cur);
+                width: 100%;
+                left: 0;
+                top: calc(100% + 4px);
+                color: #3ff99e;
+                overflow: visible !important;
+                text-align: center;
+                position: absolute;
+                font-size: 21px;
+              }
+  
+              .timeline-startday, .timeline-endday {
+                position: absolute;
+                top: calc(100% + 4px);
+                left: -10%;
+                width: 0;
+                overflow: visible !important;
+                white-space: nowrap;
+                font-size: 20px;
+                color: #10bb67;
+              }
+              .timeline-endday {
+                left: auto;
+                right: -10%;
+                text-align: right;
+                direction: rtl;
+              }
+  
+              .timeline-cur-range {
+                position: absolute;
+                width: calc(100% - 35px);
+                left: 17.25px;
+                top: 0;
+                height: 100%;
+                
+                .timeline-cur {
+                  position: absolute;
+                  bottom: 0;
+                  left: calc(50% - 17.25px);
+                  height: 50px;
+                  width: 35px;
+                  background: url(../assets/UI/icon/plants.svg) center 100%/100% no-repeat !important;
+                }
+              }
+            }
+  
+            .selected-plant-name {
+              text-align: center;
+              font-size: 30px;
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              color: #fff;
+              padding: 5px;
+              opacity: 0;
+              visibility: hidden;
+              max-height: 15px;
+              overflow: hidden;
+              @if $effect == true {
+                transition: opacity .3s ease-in-out, visibility .3s ease-in-out, max-height .3s ease-in-out .1s;
+              }
+              &.show {
+                opacity: 1;
+                visibility: visible;
+                max-height: 57px;
+                @if $effect == true {
+                  transition: opacity .3s ease-in-out, visibility .3s ease-in-out, max-height .3s ease-in-out;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  
+    footer {
+      width: 100%;
+      height: 84px;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      border-top: 1px solid #222;
+      @if $light == true {
+        background: rgba(0, 0, 0, 0.75);
+        border-color: #fff;
+      } @else {
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .btn-nav {
+        width: 15%;
+        height: 0;
+        padding-top: 15%;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.18);
+        position: relative;
+        display: flex;
+        @if $effect == true {
+          transition: all .3s ease-in-out;
+        }
+
+        &.highlight {
+          width: 17.5%;
+          padding-top: 17.5%;
+        }
+        
+        &.highlight::before {
+          content: "";
+          position: absolute;
+          top: -5px;
+          left: -5px;
+          width: calc(100% + 10px);
+          height: calc(100% + 10px);
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          @if $effect == true {
+            transition: all .3s ease-in-out;
+          }
+        }
+
+        &::after {
+          content: "";
+          position: absolute;
+          top: 15%;
+          left: 15%;
+          width: 70%;
+          height: 70%;
+          @if $effect == true {
+            transition: all .3s ease-in-out;
+          }
+        }
+        &.highlight::after {
+          top: 7.5%;
+          left: 7.5%;
+          width: 85%;
+          height: 85%;
+        }
+
+        &.nav-home::after, &.nav-plants::after, &.nav-settings::after {
+          background: url(../assets/UI/icon/home.svg) center center/contain no-repeat;
+        }
+        
+        &.nav-home::after {
+          background-image: url(../assets/UI/icon/home.svg) !important;
+        }
+        
+        &.nav-plants::after {
+          background-image: url(../assets/UI/icon/plants.svg) !important;
+        }
+        
+        &.nav-settings::after {
+          background-image: url(../assets/UI/icon/settings.svg) !important;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "android": {
+    "release": {
+      "keystore": "./InsysMobileApp.keystore",
+      "storePassword": "insys!@#123",
+      "alias": "InsysTeam",
+      "password": "insys!@#123",
+      "keystoreType": ""
+    }
+  },
+  "windows": {
+    "release": {
+      "packageCertificateKeyFile": "res\\native\\windows\\CordovaApp.pfx"
+    }
+  }
+}
