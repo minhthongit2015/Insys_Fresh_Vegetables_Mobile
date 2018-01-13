@@ -5,16 +5,16 @@
       <div class="breadscrumb" [ngClass]="{show: isShowQuickView}">
         <div class="selected-plant {{selectedPlant?.type}}"></div>
         <i class="breadscrumb-bridge" [ngClass]="{show: isShowDetails||isCameraView}"></i>
-        <div class="current-page" [ngClass]="{camera: isCameraView, details: isShowDetails, show: isShowDetails||isCameraView}"></div>
-        <div class="btn-back" (click)="onBackToMain()"></div>
+        <div class="current-page clickable" [ngClass]="{camera: isCameraView, details: isShowDetails, show: isShowDetails||isCameraView}"></div>
+        <div class="btn-back clickable" (click)="onBackToMain()"></div>
       </div>
     </header>
     <section id="body" (click)="onClickOut($event)">
-      <div class="plant" *ngFor="let plant of currentPlants" title="{{plant.name}}"
+      <div class="plant clickable" *ngFor="let plant of currentPlants" title="{{plant.name}}"
         (click)="onViewPlant(plant)">
         <div class="plant-icon {{plant.type}}"></div>
       </div>
-      <div class="plant" title="Thêm cây trồng mới" (click)="onAddNewPlant()">
+      <div class="plant clickable" title="Thêm cây trồng mới" (click)="onAddNewPlant()">
         <div class="plant-icon btn-addnew"></div>
       </div>
       <div class="plant"></div>
@@ -22,11 +22,11 @@
       <article id="quickview-panel" [ngClass]="{show: isShowQuickView, expand: isShowDetails||isCameraView}">
         <div class="quickview-panel-inner">
           <div class="selected-plant-nav">
-            <div class="selected-plant-detail" (click)="onViewDetailPlant(selectedPlant)" [ngClass]="{show: isShowDetails}"></div>
-            <div class="selected-plant-icon {{selectedPlant?.type}}" (click)="onViewDetailPlant(selectedPlant)">
-              <div class="connection-light" [ngClass]="{connecting: isConnecting, online: isOnline}"></div>
+            <div class="selected-plant-detail clickable" (click)="onViewDetailPlant(selectedPlant)" [ngClass]="{show: isShowDetails}"></div>
+            <div class="selected-plant-icon clickable {{selectedPlant?.type}}" (click)="onViewDetailPlant(selectedPlant)">
+              <div class="connection-light clickable" [ngClass]="{connecting: blctl.connecting, online: blctl.connected}"></div>
             </div>
-            <div class="selected-plant-camera" (click)="onViewCamera(selectedPlant)"></div>
+            <div class="selected-plant-camera clickable" (click)="onViewCamera(selectedPlant)"></div>
           </div>
           <div class="quickview-panel-body">
             <div class="plant-details" [ngClass]="{show: isShowDetails}">
@@ -34,8 +34,8 @@
                 <div class="plant-details-label">Chế độ hoạt động</div>
                 <div class="plant-details-tab">
                   <div class="plant-details-head">
-                    <div class="plant-btn-label default" [ngClass]="{checked: selectedPlant?.auto}" (click)="onToggleAuto(true)">Tự động</div>
-                    <div class="plant-btn-label default" [ngClass]="{checked: !selectedPlant?.auto}" (click)="onToggleAuto(false)">Thủ công</div>
+                    <div class="plant-btn-label clickable default" [ngClass]="{checked: selectedPlant?.auto}" (click)="onToggleAuto(true)">Tự động</div>
+                    <div class="plant-btn-label clickable default" [ngClass]="{checked: !selectedPlant?.auto}" (click)="onToggleAuto(false)">Thủ công</div>
                   </div>
                   <div class="plant-details-body">
                     <table class="plant-btn-hidden-group" [ngClass]="{show: selectedPlant?.auto}">
@@ -100,7 +100,8 @@
                 <div class="plant-details-label">Biểu đồ hoạt động</div>
                 <div class="plant-realtime-chart-wrapper">
                   <div class="plant-details-flexbox plant-realtime-chart">
-                    <insys-chart [options]="options" [data]="selectedPlant?.chartViewData" #insyschart></insys-chart>
+                    <!-- <insys-chart [options]="options" [data]="selectedPlant?.chartViewData" #insyschart></insys-chart> -->
+                    <canvas #insyschart></canvas>
                   </div>
                 </div>
               </div>

@@ -15,6 +15,11 @@ page-home {
     overflow: hidden;
   }
 
+  .clickable {
+    transition: opacity .2s ease-in-out;
+    &:active { opacity: .8; }
+  }
+
   .background {
     display: flex;
     flex-direction: column;
@@ -305,9 +310,6 @@ page-home {
                     &.checked.special {
                       background: rgba(30, 163, 244, .44);
                     }
-                    &:active {
-                      opacity: 0.5;
-                    }
                   }
                 }
                 .plant-details-body {
@@ -406,7 +408,7 @@ page-home {
                 border: 1px solid #fff;
                 width: 100%;
                 height: 0;
-                padding-top: 42%;
+                padding-top: 60%;
                 position: relative;
                 margin: 0 0 6px;
   

@@ -32,6 +32,6 @@ export class HomeServices extends API {
   }
   uninstallGetChartViaBluetooth() {
     try { this.getChartBls.unsubscribe() }
-    catch { }
+    catch (e) { }
   }
 }

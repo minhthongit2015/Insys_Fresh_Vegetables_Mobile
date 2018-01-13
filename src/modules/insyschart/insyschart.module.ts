@@ -17,11 +17,16 @@ export class InsysChartModule { }
 
 export class ChartData {
   key: string = "";
-  values: ChartRecord[] = [];
+  values: number[] = [];
+  labels: any[] = [];
 
-  constructor(length: number = 0, min: number = 0, max: number = 0) {
+  constructor(key: string = "", length: number = 0, min: number = 0, max: number = 0) {
+    this.key = key;
     for (let i=0; i<length; i++) {
-      this.values[i] = new ChartRecord(i*10, (Math.random()*(max-min+1) + min).toFixed(2));
+      // this.values[i] = new ChartRecord(i*10, (Math.random()*(max-min+1) + min).toFixed(2));
+      // this.values[i] = {x: i*10, y: parseFloat((Math.random()*(max-min+1) + min).toFixed(2))};
+      this.values[i] = parseFloat((Math.random()*(max-min+1) + min).toFixed(2));
+      this.labels[i] = i*5*60*1000;
     }
   }
 }
@@ -31,6 +36,6 @@ export class ChartRecord {
   y: any;
   constructor(x: number, y: any) {
     this.x = x;
-    this.y = y;
+    this.y = parseInt(y);
   }
 }

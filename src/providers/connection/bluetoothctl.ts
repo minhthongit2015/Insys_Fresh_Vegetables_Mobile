@@ -36,17 +36,18 @@ export class BluetoothCtl {
   }
 
   sendRecvWithCommand(cmd, data, callback, onEmpty = ()=>{}) {
+    let pthis = this;
     this.connect(() => {
       data = String.fromCharCode(cmd) + data;
-      this.bls.write(data).then(() => {
-        if (callback) this.bls.readUntil("\x00").then(resolveData);
+      pthis.bls.write(data).then(() => {
+        if (callback) pthis.bls.readUntil("\x00").then(resolveData);
       });
     });
 
     function resolveData(data) {
       if (!data) {
         setTimeout(() => {
-          this.bls.readUntil("\x00").then(resolveData);
+          pthis.bls.readUntil("\x00").then(resolveData);
         }, 500);
         return;
       } else {

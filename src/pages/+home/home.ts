@@ -1,4 +1,4 @@
-import { Component, ViewChildren } from '@angular/core';
+import { Component, ViewChildren, ViewChild } from '@angular/core';
 import { IonicPage, ModalController, NavController } from 'ionic-angular';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -14,6 +14,7 @@ import { InsysChartComponent } from '../../modules/insyschart/insyschart.compone
 
 import { BluetoothCtl } from '../../providers/connection/bluetoothctl';
 import { ChartData } from '../../modules/insyschart/insyschart.module';
+import { Chart } from 'chart.js';
 
 
 declare let d3: any;
@@ -24,6 +25,7 @@ declare let d3: any;
   templateUrl: 'home.html'
 })
 export class HomePage {
+  linechart: any;
   currentPlants: Garden[];
   gardenAPI: IBaseAPI;
   weekday = 0;
@@ -32,7 +34,7 @@ export class HomePage {
 
   get connecting() { return this.blctl.connecting }
   get connected() { return this.blctl.connected }
-  
+
   averageTemp: string = '27';
   averageHumi: string = '80';
 
@@ -43,7 +45,7 @@ export class HomePage {
     public homeServices: HomeServices, private blctl: BluetoothCtl, private sanitizer: DomSanitizer) {
     let pthis = this;
 
-    this.clock = Observable.interval(1000).map( () => this.clockTime.setTime(this.clockTime.getTime()+500) );
+    this.clock = Observable.interval(1000).map(() => this.clockTime.setTime(this.clockTime.getTime() + 500));
 
     this.db = new Database("Gardens");
     this.user = new UserModule();
@@ -56,6 +58,8 @@ export class HomePage {
         plant['humidity'] = 0;
         plant['temperature'] = 0;
         plant['pH'] = 0;
+        plant['chartData'] = [new ChartData("humidity", 0, 50, 100), new ChartData("temperature", 0, 20, 35)];
+        plant['chartViewData'] = plant['chartData'];
         return plant;
       });
       pthis.currentPlants = gardens;
@@ -63,11 +67,13 @@ export class HomePage {
     } else {
       this.gardenServices.query().observe.subscribe((gardens: any) => {
         gardens = gardens.map((plant: any) => {
-          plant['pins'] = [true,true,true,true];
+          plant['pins'] = [true, true, true, true];
           plant['auto'] = true;
           plant['humidity'] = 0;
           plant['temperature'] = 0;
           plant['pH'] = 0;
+          plant['chartData'] = [new ChartData("humidity", 0, 50, 100), new ChartData("temperature", 0, 20, 35)];
+          plant['chartViewData'] = plant['chartData'];
           return plant;
         });
         pthis.currentPlants = gardens;
@@ -90,12 +96,12 @@ export class HomePage {
           }
         }
       }
-      pthis.averageHumi = (totalHumi/count).toFixed(2);
-      pthis.averageTemp = (totalTemp/count).toFixed(2);
+      pthis.averageHumi = (totalHumi / count).toFixed(2);
+      pthis.averageTemp = (totalTemp / count).toFixed(2);
       pthis.db.insertKey(pthis.currentPlants, "Garden");
       // if (pthis.chart && pthis.chart.update) pthis.chart.update();
     });
-    
+
     this.weekday = 0;
     this.ytbchannel = this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/y0NcwRYGOHU");
   }
@@ -113,44 +119,126 @@ export class HomePage {
           left: 60
         },
         useInteractiveGuideline: true,
-        dispatch: {   
+        dispatch: {
           stateChange: (e: any) => this.onChangeLabel(e)
         },
         interpolate: 'line',// basic, monotone
         forceY: [0, 50, 100],
         duration: 100,
         color: ['#5bc0de', '#f0ad4e'],
-        x: function(d: any){ return d?d.x:0; },
-        y: function(d: any){ return d?d.y:0; },
+        x: function (d: any) { return d ? d.x : 0; },
+        y: function (d: any) { return d ? d.y : 0; },
         xAxis: {
           // axisLabel: 'Time (hh:mm:ss dd/mm)',
-          tickFormat: function(x: any) { return d3.time.format('%H:%M %d/%m')(new Date(parseInt(x))) },
+          tickFormat: function (x: any) { return d3.time.format('%H:%M %d/%m')(new Date(parseInt(x))) },
           showMaxMin: true
         },
         x2Axis: {
           axisLabel: 'Time 2',
-          tickFormat: function(x: any) { return d3.time.format('%H:%M')(new Date(parseInt(x))) },
+          tickFormat: function (x: any) { return d3.time.format('%H:%M')(new Date(parseInt(x))) },
           showMaxMin: true
         },
         yAxis: {
           // axisLabel: 'Nhiệt độ (°C)            Độ ẩm (%)',
-          tickFormat: function(d: any) { return d3.format(',.2f')(d) },
+          tickFormat: function (d: any) { return d3.format(',.2f')(d) },
           // valueFormat: function(d: any) { d3.format(',.2f') },
           axisLabelDistance: 0,
           showMaxMin: true
         },
         y2Axis: {
           // axisLabel: 'Nhiệt độ (°C)            Độ ẩm (%)',
-          tickFormat: function(d: any) { return d3.format(',.2f')(d) },
+          tickFormat: function (d: any) { return d3.format(',.2f')(d) },
           axisLabelDistance: 0,
           showMaxMin: true
         }
       }
     };
-    let chartViewData = [new ChartData(100, 50, 100), new ChartData(100, 20, 35)];
+    // let chartViewData = [new ChartData(100, 50, 100), new ChartData(100, 20, 35)];
+    // console.log(new ChartData("Độ Ẩm", 40, 50, 100).values)
+    this.linechart = new Chart(this.chart.nativeElement, {
+      type: 'line',
+      data: {
+        // labels: ["Độ Ẩm", "Nhiệt Độ"],
+        labels: new ChartData("Độ Ẩm",40, 60, 100).labels,
+        datasets: [{
+          label: "Độ Ẩm",
+          data: new ChartData("Độ Ẩm",40, 60, 100).values,
+          borderColor: "#5bc0de",
+          fillStyle: "#f0ad4e",
+          fill: false,
+          pointRadius: 0
+        }, {
+          label: "Nhiệt Độ",
+          data: new ChartData("Độ Ẩm",40, 20, 35).values,
+          borderColor: "#f0ad4e",
+          fillStyle: "#f0ad4e",
+          fill: false,
+          pointRadius: 0
+        }]
+      },
+      options: {
+        scales: {
+          xAxes: [{
+            display: true,
+            scaleLable: {
+              display: true
+            },
+            ticks: {
+              fontColor: "#fff"
+            },
+            type: 'time',
+            time: {
+              displayFormats: {
+                 'millisecond': 'h:mm',
+                 'second': 'h:mm',
+                 'minute': 'h:mm',
+                 'hour': 'h:mm',
+                 'day': 'h:mm',
+                 'week': 'MMM DD',
+                 'month': 'MMM DD',
+                 'quarter': 'h:mm',
+                 'year': 'h:mm',
+              }
+            }
+          }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              fontColor: "#fff"
+            },
+          }]
+        },
+        legend: {
+            display: true,
+            labels: {
+              fontColor: '#fff',
+              fontSize: 16
+            }
+        },
+        Element: {
+          line: {
+            tension: 0
+          }
+        },
+        tooltips: {
+          mode: "index"
+        },
+        animation: {
+          duration: 0, // general animation time
+        },
+        hover: {
+          animationDuration: 0, // duration of animations when hovering an item
+        },
+        responsiveAnimationDuration: 0, // animation duration after a resize
+        responsive: true,
+        maintainAspectRatio: false,
+      }
+    });
   }
-  
-  
+
+  @ViewChild('insyschart') chart;
+
+
   onChangeLabel(e: any) {
     if (!this.charts) return;
     debugger
@@ -177,7 +265,7 @@ export class HomePage {
   }
 
   isShowQuickView: boolean = false;
-  selectedPlant : Garden;
+  selectedPlant: Garden;
   selectedPlantConn;
   blueToken: string = "";
   onViewPlant(plant) {
@@ -188,14 +276,14 @@ export class HomePage {
       this.syncViaBluetooth();
     } else {
       try {
-        this.blctl.disconnect().then(()=>{
+        this.blctl.disconnect().then(() => {
           this.syncViaBluetooth();
         });
       } catch (e) { }
     }
   }
 
-  syncViaBluetooth(justread=false) {
+  syncViaBluetooth(justread = false) {
     let pthis = this;
     if (!this.blctl.connected) {
       this.blctl.sendRecvWithCommand(2, "", (data) => {
@@ -220,52 +308,61 @@ export class HomePage {
       pthis.selectedPlant['temperature'] = parseFloat(envs[1])
       pthis.selectedPlant['pH'] = parseFloat(envs[2])
       console.log(data);
-
-      setTimeout(() => {
-        pthis.homeServices.installGetChartViaBluetooth(5000, () => {
-          pthis.blctl.sendRecvWithCommand(3, "", (data) => {
-            console.log(data);
-          })
-        });
-      }, 1000);
     }
   }
 
   isShowDetails: boolean = false;
-  private getChartAPIs: {[api: string]: {}} = {};
+  private getChartAPIs: { [api: string]: {} } = {};
   onViewDetailPlant(plant) {
-    let pthis = this;
-    let plantId = plant['managerDeviceId'];
+    // let pthis = this;
+    // let plantId = plant['managerDeviceId'];
     this.isShowDetails = !this.isShowDetails;
     this.isCameraView = false;
-    if (this.isShowDetails) {
-      if (!this.getChartAPIs[plantId]) {       // install api
-        this.getChartAPIs[plantId] = {};
-        this.getChartAPIs[plantId]['garden'] = this.currentPlants.find(g => g['managerDeviceId'] == plantId);
-        this.getChartAPIs[plantId]['garden']['chartViewData'] = [new ChartData(100, 60, 100), new ChartData(100, 20, 35)];
-        this.getChartAPIs[plantId]['garden']['lastTimeChart'] = new Date().getTime() - 86400000;
-        
-        this.getChartAPIs[plantId]['garden']['chart'] = document.querySelector(`#g${plantId} insys-chart > nvd3 > svg`);
-        
-        this.getChartAPIs[plantId]['api'] = this.homeServices.installGetChartAPI(15000000, plantId, this.getChartAPIs[plantId]['garden']['lastTimeChart'], (rs: any) => {
-          if (!rs.data.length || !rs.data[0].values || !rs.data[0].values.length) return;
-  
-          let data = rs.data;
-          pthis.getChartAPIs[plantId]['garden']['chartViewData'][0].values.push(...data[0].values);
-          pthis.getChartAPIs[plantId]['garden']['chartViewData'][1].values.push(...data[1].values);
-          pthis.getChartAPIs[plantId]['garden']['lastTimeChart'] = data[0].values.pop().x+1;
-          pthis.getChartAPIs[plantId]['api'].params.timestampStart = pthis.getChartAPIs[plantId]['garden']['lastTimeChart'];
-  
-          let nowStart = new Date().getTime() - 86400000;
-          pthis.getChartAPIs[plantId]['garden']['chartViewData'][0].values = pthis.getChartAPIs[plantId]['garden']['chartViewData'][0].values.filter(p => p.x > nowStart);
-          pthis.getChartAPIs[plantId]['garden']['chartViewData'][1].values = pthis.getChartAPIs[plantId]['garden']['chartViewData'][1].values.filter(p => p.x > nowStart);
 
-          pthis.updateCharts();
-        });
-      }
-    }
+    setTimeout(() => {
+      // pthis.homeServices.installGetChartViaBluetooth(5000, () => {
+      //   pthis.blctl.sendRecvWithCommand(3, "", (data) => {
+      //     // let envs = data.split("|");
+      //     // pthis.selectedPlant['humidity'] = parseFloat(envs[1])
+      //     // pthis.selectedPlant['temperature'] = parseFloat(envs[2])
+      //     // pthis.selectedPlant['pH'] = parseFloat(envs[3])
+      //     // pthis.selectedPlant['chartData'][0].values.push({x: envs[0], y: pthis.selectedPlant['humidity']})
+      //     // pthis.selectedPlant['chartData'][1].values.push({x: envs[0], y: pthis.selectedPlant['temperature']})
+      //     // pthis.selectedPlant['chartViewData'] = pthis.selectedPlant['chartData'];
+      //     // if (pthis.charts && pthis.charts.length>0)
+      //     //   pthis.charts.forEach(chart => chart.update());
+      //     console.log(data)
+      //   })
+      // });
+    }, 1000);
+    // if (this.isShowDetails) {
+    //   if (!this.getChartAPIs[plantId]) {       // install api
+    //     this.getChartAPIs[plantId] = {};
+    //     this.getChartAPIs[plantId]['garden'] = this.currentPlants.find(g => g['managerDeviceId'] == plantId);
+    //     this.getChartAPIs[plantId]['garden']['chartViewData'] = [new ChartData(100, 60, 100), new ChartData(100, 20, 35)];
+    //     this.getChartAPIs[plantId]['garden']['lastTimeChart'] = new Date().getTime() - 86400000;
+
+    //     this.getChartAPIs[plantId]['garden']['chart'] = document.querySelector(`#g${plantId} insys-chart > nvd3 > svg`);
+
+    //     this.getChartAPIs[plantId]['api'] = this.homeServices.installGetChartAPI(15000000, plantId, this.getChartAPIs[plantId]['garden']['lastTimeChart'], (rs: any) => {
+    //       if (!rs.data.length || !rs.data[0].values || !rs.data[0].values.length) return;
+
+    //       let data = rs.data;
+    //       pthis.getChartAPIs[plantId]['garden']['chartViewData'][0].values.push(...data[0].values);
+    //       pthis.getChartAPIs[plantId]['garden']['chartViewData'][1].values.push(...data[1].values);
+    //       pthis.getChartAPIs[plantId]['garden']['lastTimeChart'] = data[0].values.pop().x+1;
+    //       pthis.getChartAPIs[plantId]['api'].params.timestampStart = pthis.getChartAPIs[plantId]['garden']['lastTimeChart'];
+
+    //       let nowStart = new Date().getTime() - 86400000;
+    //       pthis.getChartAPIs[plantId]['garden']['chartViewData'][0].values = pthis.getChartAPIs[plantId]['garden']['chartViewData'][0].values.filter(p => p.x > nowStart);
+    //       pthis.getChartAPIs[plantId]['garden']['chartViewData'][1].values = pthis.getChartAPIs[plantId]['garden']['chartViewData'][1].values.filter(p => p.x > nowStart);
+
+    //       pthis.updateCharts();
+    //     });
+    //   }
+    // }
     let tooltip = document.getElementsByClassName("nvtooltip");
-    for (let i=0; i < tooltip.length; i++) (<any>(tooltip[i])).style.opacity = 0;
+    for (let i = 0; i < tooltip.length; i++) (<any>(tooltip[i])).style.opacity = 0;
   }
 
   onClickOut(e) {
@@ -282,7 +379,9 @@ export class HomePage {
   }
 
   onAddNewPlant() {
-    
+    this.blctl.sendWithCommand(4, "", () => {
+
+    })
   }
 
   onBackToMain() {
@@ -308,11 +407,8 @@ export class HomePage {
     if (!this.selectedPlant['pins']) return;
     let state = e.target.checked;
     this.selectedPlant['pins'][pinIndex].state = state;
-    this.blctl.sendRecvWithCommand(1, String.fromCharCode(pinIndex) + String.fromCharCode(state), (ready) => {
-      if (ready) {
-        ready.catch().then((rs) => {
-        })
-      }
+    this.blctl.sendRecvWithCommand(1, String.fromCharCode(pinIndex) + String.fromCharCode(state), (data) => {
+      console.log(data);
     });
   }
 

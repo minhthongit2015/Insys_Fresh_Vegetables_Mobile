@@ -14,8 +14,11 @@ export class Gardens {
     var url = "";
     if(this.platform.is('android')) url = "/android_asset/www/assets";
     else url = "../assets";
-
-    return this.api.get(url+'/demo_data/gardens.json', params);
+    try {
+      return this.api.get(url+'/demo_data/gardens.json', params);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
 
