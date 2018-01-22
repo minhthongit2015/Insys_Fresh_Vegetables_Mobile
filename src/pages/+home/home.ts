@@ -1,4 +1,4 @@
-import { Component, ViewChildren, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { IonicPage, ModalController, NavController } from 'ionic-angular';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -10,14 +10,11 @@ import { IBaseAPI } from '../../providers/api/api';
 import { Database } from '../../providers/storage/storage';
 import { UserModule } from '../../providers/providers';
 import { Observable } from 'rxjs/Observable';
-import { InsysChartComponent } from '../../modules/insyschart/insyschart.component';
 
 import { BluetoothCtl } from '../../providers/connection/bluetoothctl';
 import { ChartData } from '../../modules/insyschart/insyschart.module';
 import { Chart } from 'chart.js';
 
-
-declare let d3: any;
 
 @IonicPage()
 @Component({
@@ -42,7 +39,7 @@ export class HomePage {
   clockTime = new Date();
   ytbchannel: any = "";
   constructor(public navCtrl: NavController, public gardenServices: Gardens, public modalCtrl: ModalController,
-    public homeServices: HomeServices, private blctl: BluetoothCtl, private sanitizer: DomSanitizer) {
+    public homeServices: HomeServices, public blctl: BluetoothCtl, public sanitizer: DomSanitizer) {
     let pthis = this;
 
     this.clock = Observable.interval(1000).map(() => this.clockTime.setTime(this.clockTime.getTime() + 500));
@@ -104,72 +101,30 @@ export class HomePage {
 
     this.weekday = 0;
     this.ytbchannel = this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/y0NcwRYGOHU");
+
+    this.blctl.setListener((cmd,sub1,sub2,data) => { this.resolveResponse(cmd,sub1,sub2,data) });
   }
 
-  options: any;
-  @ViewChildren(InsysChartComponent) charts: any[];
+  @ViewChild('insyschart') chart;
   ionViewDidLoad() {
-    this.options = {
-      chart: {
-        type: 'lineWithFocusChart',
-        margin: {
-          top: 50,
-          right: 10,
-          bottom: 30,
-          left: 60
-        },
-        useInteractiveGuideline: true,
-        dispatch: {
-          stateChange: (e: any) => this.onChangeLabel(e)
-        },
-        interpolate: 'line',// basic, monotone
-        forceY: [0, 50, 100],
-        duration: 100,
-        color: ['#5bc0de', '#f0ad4e'],
-        x: function (d: any) { return d ? d.x : 0; },
-        y: function (d: any) { return d ? d.y : 0; },
-        xAxis: {
-          // axisLabel: 'Time (hh:mm:ss dd/mm)',
-          tickFormat: function (x: any) { return d3.time.format('%H:%M %d/%m')(new Date(parseInt(x))) },
-          showMaxMin: true
-        },
-        x2Axis: {
-          axisLabel: 'Time 2',
-          tickFormat: function (x: any) { return d3.time.format('%H:%M')(new Date(parseInt(x))) },
-          showMaxMin: true
-        },
-        yAxis: {
-          // axisLabel: 'Nhiệt độ (°C)            Độ ẩm (%)',
-          tickFormat: function (d: any) { return d3.format(',.2f')(d) },
-          // valueFormat: function(d: any) { d3.format(',.2f') },
-          axisLabelDistance: 0,
-          showMaxMin: true
-        },
-        y2Axis: {
-          // axisLabel: 'Nhiệt độ (°C)            Độ ẩm (%)',
-          tickFormat: function (d: any) { return d3.format(',.2f')(d) },
-          axisLabelDistance: 0,
-          showMaxMin: true
-        }
-      }
-    };
-    // let chartViewData = [new ChartData(100, 50, 100), new ChartData(100, 20, 35)];
-    // console.log(new ChartData("Độ Ẩm", 40, 50, 100).values)
     this.linechart = new Chart(this.chart.nativeElement, {
       type: 'line',
       data: {
         // labels: ["Độ Ẩm", "Nhiệt Độ"],
-        labels: new ChartData("Độ Ẩm",40, 60, 100).labels,
+        // labels: new ChartData("Độ Ẩm",40, 60, 100).labels,
+        labels: [],
         datasets: [{
           label: "Độ Ẩm",
-          data: new ChartData("Độ Ẩm",40, 60, 100).values,
+          // data: new ChartData("Độ Ẩm",40, 60, 100).values,
+          data: [],
           borderColor: "#5bc0de",
           fillStyle: "#f0ad4e",
           fill: false,
           pointRadius: 0
         }, {
           label: "Nhiệt Độ",
-          data: new ChartData("Độ Ẩm",40, 20, 35).values,
+          // data: new ChartData("Độ Ẩm",40, 20, 35).values,
+          data: [],
           borderColor: "#f0ad4e",
           fillStyle: "#f0ad4e",
           fill: false,
@@ -203,7 +158,11 @@ export class HomePage {
           }],
           yAxes: [{
             ticks: {
-              beginAtZero: true,
+              // beginAtZero: true,
+              scaleBeginAtZero: true,
+              // suggestedMin: 0,
+              // suggestedMax: 100,
+              // max: 100,
               fontColor: "#fff"
             },
           }]
@@ -223,45 +182,17 @@ export class HomePage {
         tooltips: {
           mode: "index"
         },
-        animation: {
-          duration: 0, // general animation time
-        },
-        hover: {
-          animationDuration: 0, // duration of animations when hovering an item
-        },
-        responsiveAnimationDuration: 0, // animation duration after a resize
+        // animation: {
+        //   duration: 0, // general animation time
+        // },
+        // hover: {
+        //   animationDuration: 0, // duration of animations when hovering an item
+        // },
+        // responsiveAnimationDuration: 0, // animation duration after a resize
         responsive: true,
         maintainAspectRatio: false,
       }
     });
-  }
-
-  @ViewChild('insyschart') chart;
-
-
-  onChangeLabel(e: any) {
-    if (!this.charts) return;
-    debugger
-    // this.chartViewData.forEach((data: any, index: number) => {
-    //   this.chartViewData[index].disabled = e.disabled[index];
-    // });
-    this.adjustYAxis();
-    e.update();
-  }
-
-  adjustYAxis() {
-    // if (this.chart && this.chartViewData && this.chartViewData.length == 2 && this.chartViewData[0].disabled^this.chartViewData[1].disabled) {
-    //   var min: number = 100, max: number = 0;
-    //   this.chartViewData.forEach((data: any) => {
-    //     if (!data.disabled) {
-    //       data.values.forEach((p: any) => {
-    //         max = (max == null) ? p.y : (p.y > max ? p.y : max);
-    //         min = (min == null) ? p.y : (p.y < min ? p.y : min);
-    //       });
-    //     }
-    //   });
-    //   this.chart.nvD3.chart.forceY([min-5, max+5]);
-    // } else this.chart.nvD3.chart.forceY([0, 50, 100]);
   }
 
   isShowQuickView: boolean = false;
@@ -286,12 +217,13 @@ export class HomePage {
   syncViaBluetooth(justread = false) {
     let pthis = this;
     if (!this.blctl.connected) {
-      this.blctl.sendRecvWithCommand(2, "", (data) => {
+      this.blctl.sendRecvWithCommand([4,2], "", (data) => {
         resolveSyncData(data);
       }, () => {
       });
     }
     function resolveSyncData(data) {
+      debugger
       let part = data.split("/");
       let pins = part[0].split("|");
       let envs = part[1].split("|");
@@ -309,6 +241,66 @@ export class HomePage {
       pthis.selectedPlant['pH'] = parseFloat(envs[2])
       console.log(data);
     }
+  }
+
+  resolveResponse(cmd, sub1, sub2, data) {
+    switch (cmd) {
+      case 1:
+        break;
+      case 2:
+        break;
+      case 3:
+        break;
+      case 4:
+        let info, time, humi, temp, pH;
+        switch (sub1) {
+          case 1:
+            info = data.split("|");
+            time = parseInt(info[0]);
+            humi = parseInt(info[1]);
+            temp = parseInt(info[2]);
+            pH = parseInt(info[3]);
+            this.selectedPlant.humidity = humi;
+            this.selectedPlant.temperature = temp;
+            this.selectedPlant.pH = pH;
+
+            this.linechart.data.datasets[0].data.push(humi);
+            this.linechart.data.datasets[1].data.push(temp);
+            this.linechart.data.labels.push(time);
+            if (this.linechart.data.labels.length > 50) {
+              this.linechart.data.datasets[0].data.shift();
+              this.linechart.data.datasets[1].data.shift();
+              this.linechart.data.labels.shift();
+            }
+            this.linechart.updateDatasets();
+            break;
+          case 2:
+            let records = JSON.parse(data);
+            for (let i=records.length-1; i>=0; i--) {
+              time = parseInt(records[i][0]);
+              pH = parseInt(records[i][1]);
+              temp = parseInt(records[i][2]);
+              humi = parseInt(records[i][3]);
+              this.linechart.data.datasets[0].data.push(humi);
+              this.linechart.data.datasets[1].data.push(temp);
+              this.linechart.data.labels.push(time);
+              if (this.linechart.data.labels.length > 50) {
+                this.linechart.data.datasets[0].data.shift();
+                this.linechart.data.datasets[1].data.shift();
+                this.linechart.data.labels.shift();
+              }
+            }
+            this.linechart.update();
+            break;
+        }
+        break;
+      default:
+        console.log("Unrecognite")
+    }
+  }
+
+  onNewRecords(data) {
+
   }
 
   isShowDetails: boolean = false;
@@ -379,9 +371,8 @@ export class HomePage {
   }
 
   onAddNewPlant() {
-    this.blctl.sendWithCommand(4, "", () => {
-
-    })
+    // this.blctl.sendWithCommand(4, "", () => {
+    // })
   }
 
   onBackToMain() {
@@ -424,11 +415,4 @@ export class HomePage {
     }
     this.homeServices.uninstallAPI(this.gardenAPI);
   }
-
-  // @ViewChild(InsysChartComponent) listChart:any;
-
-  updateCharts() {
-    this.charts.forEach(chart => chart.update());
-  }
-
 }

@@ -1,7 +1,7 @@
 
 
 export class Plant {
-  chart?: any;
+  chartData?: any[];
   humidity: number;
   temperature: number;
   pH: number;

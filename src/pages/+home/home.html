@@ -63,7 +63,7 @@
                         <td>Tưới Nước + Dinh dưỡng</td>
                         <td>
                           <label class="btn-switch">
-                            <input type="checkbox" [checked]="selectedPlant.pins[3] && selectedPlant.pins[3].state" (change)="onSwitchChange(3, $event)">
+                            <input type="checkbox" [checked]="selectedPlant?.pins[3] && selectedPlant?.pins[3].state" (change)="onSwitchChange(3, $event)">
                             <div class="btn-slider"></div>
                           </label>
                         </td>
@@ -72,7 +72,7 @@
                         <td>Châm phân (pH: {{selectedPlant?.pH}})</td>
                         <td>
                           <label class="btn-switch">
-                            <input type="checkbox" [checked]="selectedPlant.pins[1] && selectedPlant.pins[1].state" (change)="onSwitchChange(1, $event)">
+                            <input type="checkbox" [checked]="selectedPlant?.pins[1] && selectedPlant?.pins[1].state" (change)="onSwitchChange(1, $event)">
                             <div class="btn-slider"></div>
                           </label>
                         </td>
