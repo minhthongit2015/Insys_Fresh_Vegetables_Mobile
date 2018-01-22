@@ -2,25 +2,43 @@
   <div class="background">
     <header>
       <div class="forecast"></div>
-      <div class="breadscrumb" [ngClass]="{show: isShowQuickView}">
-        <div class="selected-plant {{selectedPlant?.type}}"></div>
+      <div class="breadscrumb" [ngClass]="{show: isShowQuickView || isShowCreatePlantPanel}">
+        <div class="selected-plant {{selectedPlant?.type}}" [ngClass]="{show: isShowQuickView}"></div>
         <i class="breadscrumb-bridge" [ngClass]="{show: isShowDetails||isCameraView}"></i>
         <div class="current-page clickable" [ngClass]="{camera: isCameraView, details: isShowDetails, show: isShowDetails||isCameraView}"></div>
         <div class="btn-back clickable" (click)="onBackToMain()"></div>
       </div>
     </header>
     <section id="body" (click)="onClickOut($event)">
+      <!-- List Plants -->
       <div class="plant clickable" *ngFor="let plant of currentPlants" title="{{plant.name}}"
         (click)="onViewPlant(plant)">
         <div class="plant-icon {{plant.type}}"></div>
       </div>
-      <div class="plant clickable" title="Thêm cây trồng mới" (click)="onAddNewPlant()">
+      <!-- Create new plant button -->
+      <div class="plant clickable" title="Thêm cây trồng mới" (click)="onCreatePlant()">
         <div class="plant-icon btn-addnew"></div>
       </div>
       <div class="plant"></div>
       <div class="plant"></div>
+
+      <!-- Create Plant Panel -->
+      <div class="newplant-popup" [ngClass]="{show: isShowCreatePlantPanel}">
+        <div class="newplant-header">Cây Trồng Mới</div>
+        <div class="newplant-body">
+          <div class="select-plant-type"></div>
+          <table class="input-table">
+            <tr class="input-group"><td><label class="input-label" for="newplant-name">Tên:</label></td><td><input type="text" id="newplant-name" placeholder="Tên cây trồng"></td></tr>
+            <tr class="input-group"><td><label class="input-label">Ngày ươm:</label></td><td><ion-datetime displayFormat="DD MMMM YYYY" pickerFormat="DDDD DD MMM YYYY" [(ngModel)]="myDate" doneText="Xong" cancelText="Hủy"></ion-datetime></td></tr>
+          </table>
+          <div class="create-plant-btn">Tạo Cây Trồng Mới</div>
+        </div>
+      </div>
+
+      <!-- Main Panel -->
       <article id="quickview-panel" [ngClass]="{show: isShowQuickView, expand: isShowDetails||isCameraView}">
         <div class="quickview-panel-inner">
+          <!-- Nav Panel -->
           <div class="selected-plant-nav">
             <div class="selected-plant-detail clickable" (click)="onViewDetailPlant(selectedPlant)" [ngClass]="{show: isShowDetails}"></div>
             <div class="selected-plant-icon clickable {{selectedPlant?.type}}" (click)="onViewDetailPlant(selectedPlant)">
@@ -28,6 +46,8 @@
             </div>
             <div class="selected-plant-camera clickable" (click)="onViewCamera(selectedPlant)"></div>
           </div>
+
+          <!-- Panel Body -->
           <div class="quickview-panel-body">
             <div class="plant-details" [ngClass]="{show: isShowDetails}">
               <div class="plant-details-group">
@@ -37,16 +57,15 @@
                     <div class="plant-btn-label clickable default" [ngClass]="{checked: selectedPlant?.auto}" (click)="onToggleAuto(true)">Tự động</div>
                     <div class="plant-btn-label clickable default" [ngClass]="{checked: !selectedPlant?.auto}" (click)="onToggleAuto(false)">Thủ công</div>
                   </div>
+
+                  <!-- Details -->
                   <div class="plant-details-body">
                     <table class="plant-btn-hidden-group" [ngClass]="{show: selectedPlant?.auto}">
                       <tr>
                         <td>Tưới Nước + Dinh dưỡng</td>
-                        <td>
-                          <label class="btn-switch">
+                        <td><label class="btn-switch">
                             <input type="checkbox" checked>
-                            <div class="btn-slider"></div>
-                          </label>
-                        </td>
+                            <div class="btn-slider"></div></label></td>
                       </tr>
                       <tr>
                         <td>Châm phân (pH: {{selectedPlant?.pH}})</td>
@@ -81,6 +100,8 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Enviroment -->
               <div class="plant-details-group">
                 <div class="plant-details-label">Môi trường sinh trưởng</div>
                 <div  class="plant-envs">
@@ -96,6 +117,8 @@
                   </table>
                 </div>
               </div>
+
+              <!-- Chart -->
               <div class="plant-details-group">
                 <div class="plant-details-label">Biểu đồ hoạt động</div>
                 <div class="plant-realtime-chart-wrapper">
@@ -106,11 +129,15 @@
                 </div>
               </div>
             </div>
+
+            <!-- Camera -->
             <div class="camera-panel-wrapper" [ngClass]="{show: isCameraView}">
               <div class="camera-panel">
                 <iframe width="100%" height="100%" [src]="ytbchannel" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen></iframe>
               </div>
             </div>
+
+            <!-- Timelife -->
             <div class="selected-plant-timeline" data-cur="Ngày 20">
               <div class="timeline-startday">{{selectedPlant?.start}}</div>
               <div class="timeline-endday">{{selectedPlant?.start}}</div>
@@ -118,6 +145,7 @@
                 <div class="timeline-cur"></div>
               </div>
             </div>
+            <!-- Plant Name -->
             <div class="selected-plant-name" [ngClass]="{show: !isShowDetails && !isCameraView}">{{selectedPlant?.name}}</div>
           </div>
         </div>

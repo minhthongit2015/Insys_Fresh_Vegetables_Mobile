@@ -79,12 +79,15 @@ page-home {
           position: relative;
           display: flex;
           box-sizing: border-box;
-          @if $effect == true {
-            transition: all .3s ease-in-out;
-          }
         }
         .selected-plant {
           border: 3px solid rgba(227, 237, 255, .72);
+          opacity: 0;
+          @if $effect == true { transition: all .3s ease-in-out; }
+          &.show {
+            @if $effect == true { transition: .3s all ease-in-out .2s; }
+            opacity: 1;
+          }
         }
         .current-page {
           border: 4px solid rgba(255, 255, 255, .9);
@@ -154,6 +157,49 @@ page-home {
           &.btn-addnew {
             background: url("../assets/UI/icon/plus.svg") center center/80% no-repeat;
             filter: none;
+          }
+        }
+      }
+
+      .newplant-popup {
+        position: absolute;
+        border-radius: 7px;
+        border: 7px solid rgba(77, 77, 77, 0.85);
+        top: 10px;
+        left: 20px;
+        right: 20px;
+        bottom: 10px;
+        background: rgba(26, 26, 26, 0.79);
+        background-clip: padding-box;
+        display: none;
+        &.show { display: block; }
+
+        .newplant-header {
+          font-size: 25px;
+          text-align: center;
+          color: #64b57c;
+          font-weight: bold;
+          border-bottom: 1px solid #fff;
+          padding: 4px 10px 4px;
+          margin-bottom: 10px;
+          background: rgba(0, 0, 0, 0.49);
+        }
+        .newplant-body {
+          padding: 8px 10px;
+          color: #fff;
+
+          .create-plant-btn {
+            font-size: 25px;
+            text-align: center;
+            padding: 4px;
+            background: #70bd95;
+            border-bottom: 4px solid #c0ffe1;
+            border-radius: 4px 4px 2px 2px;
+            margin-top: 15px;
+            &:active {
+              margin-top: 17px;
+              border-bottom-width: 2px;
+            }
           }
         }
       }

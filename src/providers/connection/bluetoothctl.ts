@@ -35,25 +35,25 @@ export class BluetoothCtl {
       let cmd = header.charCodeAt(0), sub1 = header.charCodeAt(1), sub2 = header.charCodeAt(2);
       this.onResponse(cmd, sub1, sub2, data);
     }, (error) => {
-      debugger
+      // debugger
       console.log(error)
     }, () => {
-      debugger
+      // debugger
       console.log("finished");
     })
   }
 
-  sendRecvWithCommand(cmd, data, callback, onEmpty = ()=>{}) {
+  sendCommand(cmd, data='', callback=null, onEmpty = ()=>{}) {
     if (!cmd.length) cmd = [cmd];
     if (cmd.length == 1) cmd.push(-1);
     if (cmd.length == 2) cmd.push(-1);
     let header = String.fromCharCode(cmd[0]) + String.fromCharCode(cmd[1]) + String.fromCharCode(cmd[2]);
     let pthis = this;
     this.connect(() => {
-      data = header + '\xfe' + data + '\x00\x00';
-      pthis.bls.write(data).then((rs) => {
+      let packagez = header + '\xfe' + data + '\x00\x00';
+      pthis.bls.write(packagez).then((rs) => {
         // debugger
-        // if (callback) pthis.bls.readUntil("\x00\x00").then(resolveData);
+        if (callback) callback();
       });
     });
   }

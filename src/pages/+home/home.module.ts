@@ -11,7 +11,7 @@ import { BluetoothCtl } from '../../providers/connection/bluetoothctl';
 
 @NgModule({
   declarations: [
-    HomePage,
+    HomePage
   ],
   imports: [
     IonicPageModule.forChild(HomePage),
