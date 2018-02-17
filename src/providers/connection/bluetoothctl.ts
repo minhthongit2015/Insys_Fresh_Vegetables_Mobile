@@ -1,96 +1,88 @@
 import { Injectable } from "@angular/core";
 import { BluetoothSerial } from "@ionic-native/bluetooth-serial";
+import { ConnectMethod } from "../../models/connection/connect_method";
 
 
 
 @Injectable()
-export class BluetoothCtl {
-  devices: BluetoothDevice[] = [];
-  device: BluetoothDevice;
-  connecting: boolean = false;
-  connected: boolean = false;
+export class BluetoothCtl extends ConnectMethod {
+  private bluetooth_addr: string = "B8:27:EB:73:2A:5D";
+  // this.device = new BluetoothDevice(, "94f39d29-7d6d-437d-973b-fba39e49d4ee");
+  public connecting: boolean = false;
+  public connected: boolean = false;
   
   constructor(private bls: BluetoothSerial) {
-    this.device = new BluetoothDevice("B8:27:EB:73:2A:5D", "94f39d29-7d6d-437d-973b-fba39e49d4ee");
-    this.devices.push(this.device);
-    if (!this.bls.isEnabled) this.bls.enable().then(() => { this.listen(); });
-    else this.listen();
+    super();
+    this.bls.isEnabled().then((enable: string) => {
+      if (enable != "OK") this.bls.enable().then(() => { this.listen(); });
+      else this.listen();
+    }, (error) => {
+      console.error(error);
+    });
   }
 
-  setListener(listener=(cmd, sub1, sub2, data) => {}) {
-    this.onResponse = listener;
+  public setup(destination, onPackages) {
+    this.bluetooth_addr = destination;
+    this.onPackages = onPackages;
   }
 
-  onConnecting() { }
-  onConnected() { }
-  onConnectFailed(err="") { }
-  onDisconnected() { }
-
-  onResponse(cmd, sub1, sub2, data) { }
-
-  listen() {
+  private listen() {
     this.bls.subscribe("\x00\x00").subscribe((response) => {
-      let frame = response.split('\x00')[0].split('\xfe');
-      let header = frame[0], data = frame[1];
-      let cmd = header.charCodeAt(0), sub1 = header.charCodeAt(1), sub2 = header.charCodeAt(2);
-      this.onResponse(cmd, sub1, sub2, data);
+      this.onPackages(response);
     }, (error) => {
       // debugger
       console.log(error)
     }, () => {
       // debugger
       console.log("finished");
-    })
+    });
+    // this.bls.showBluetoothSettings().then((rs) => {
+    //   debugger
+    // });
   }
 
-  sendCommand(cmd, data='', callback=null, onEmpty = ()=>{}) {
-    if (!cmd.length) cmd = [cmd];
-    if (cmd.length == 1) cmd.push(-1);
-    if (cmd.length == 2) cmd.push(-1);
-    let header = String.fromCharCode(cmd[0]) + String.fromCharCode(cmd[1]) + String.fromCharCode(cmd[2]);
+  public send(packages, callback=null, onEmpty = ()=>{}) {
     let pthis = this;
     this.connect(() => {
-      let packagez = header + '\xfe' + data + '\x00\x00';
-      pthis.bls.write(packagez).then((rs) => {
+      pthis.bls.write(packages).then((rs) => {
         // debugger
         if (callback) callback();
       });
     });
   }
 
-  connect(callback, addr="", uuid="") {
-    if (!addr && !uuid) {
-      addr = this.device.addr;
-      uuid = this.device.uuid;
-    }
+  public connect(onsuccess=null, onfailed=null) {
     let pthis = this;
     try {
       this.bls.isConnected().then(
-      () => {
-        this.connecting = false;
-        this.connected = true;
-        if (callback) callback();
-      },
-      () => {
-        this.connecting = true;
-        this.connected = false;
-        this.bls.connect(addr).subscribe(rs => {
-          pthis.connecting = false;
-          if (rs == "OK") {
-            pthis.connected = true;
-            pthis.onConnected();
-            if (callback) callback();
-          } else {
+        () => {
+          this.connecting = false;
+          this.connected = true;
+          onsuccess();
+        },
+        () => {
+          this.connecting = true;
+          this.connected = false;
+          this.bls.connect(this.bluetooth_addr).subscribe(rs => {
+            pthis.connecting = false;
+            if (rs == "OK") {
+              pthis.connected = true;
+              pthis.onConnected();
+              if (onsuccess) onsuccess();
+            } else {
+              pthis.connected = false;
+              pthis.onConnectFailed(rs);
+              if (onfailed) onfailed(rs);
+            }
+          }, (err) => {
+            console.log(err);
+            pthis.connecting = false;
             pthis.connected = false;
-            pthis.onConnectFailed(rs);
-          }
-        }, (err) => {
-          console.log(err);
-          pthis.connecting = false;
-          pthis.connected = false;
-          pthis.onConnectFailed();
-        });
-      });
+            pthis.onConnectFailed(err);
+            if (onfailed) onfailed(err);
+          });
+        }
+      );
     } catch (e) {
       pthis.connecting = false;
       pthis.connected = false;
@@ -105,6 +97,13 @@ export class BluetoothCtl {
       this.bls.clear();
       callback();
       this.onDisconnected();
+    });
+  }
+
+  discover(listener) {
+    this.bls.setDeviceDiscoveredListener().subscribe((newDevice) => listener(newDevice));
+    this.bls.discoverUnpaired().then((devices) => {
+      listener(devices);
     });
   }
 

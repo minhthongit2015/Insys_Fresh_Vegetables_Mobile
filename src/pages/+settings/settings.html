@@ -1,0 +1,62 @@
+<ion-content scroll="false">
+  <div class="background">
+
+    <!-- BODY -->
+    <section id="body">
+      <article id="binding-sec">
+        <div class="article-label"><label>Kết nối</label></div>
+
+        <!-- Getting started! -->
+        <div class="alt-view" [ngClass]="{show: false}">
+          <label class="label-info" for="btn-search">Chưa kết nối tới bất kỳ vườn nào</label>
+          <div class="btn-search" id="btn-search">Kết nối ngay</div>
+        </div>
+
+        <!-- Searching for available garden -->
+        <div class="alt-view" [ngClass]="{show: false}">
+          <label class="label-info">Tìm kiếm kết nối tới vườn</label>
+          <div class="list-avail">
+            <div class="list-body">
+              <label>
+                <input type="radio" name="garden" value="1" [(ngModel)]="selectedGarden">
+                <span>>> [Vườn 4D5F]</span>
+              </label>
+              <label>
+                <input type="radio" name="garden" value="2" [(ngModel)]="selectedGarden">
+                <span>Iphone X</span>
+              </label>
+              <label>
+                <input type="radio" name="garden" value="3" [(ngModel)]="selectedGarden">
+                <span>Samsung Galaxy</span>
+              </label>
+              <label>
+                <input type="radio" name="garden" value="4" [(ngModel)]="selectedGarden">
+                <span>Oppo</span>
+              </label>
+            </div>
+            <div class="list-foot clickable" (click)="onConnectToGarden()">Kết nối</div>
+          </div>
+        </div>
+
+        <!-- Connect successfuly stage -->
+        <div class="alt-view" [ngClass]="{show: true}">
+            <label class="label-info half" for="btn-search">Khởi tạo kết nối thành công. Bạn có thể tiếp tục tới cài đặt kết nối vào mạng nội bộ cho vườn (mất khoảng 2 phút) hoặc tới trang quản lý ngay (bạn có thể trở lại cài đặt kết nối wifi sau).</label>
+            <div class="btn-search"><i class="fa fa-wifi"></i> Cài đặt kết nối wifi</div>
+            <div class="btn-search" (click)="onNavigate(2, false)"><i class="icon ico-plants"></i> Tới trang quản lý vườn</div>
+          </div>
+
+      </article>
+  
+      <!-- Anothers settings -->
+      <article id="settings-sec">
+          <div class="article-label"><label>Bảo mật</label></div>
+      </article>
+    </section>
+
+    <footer>
+        <div class="btn-nav nav-home" (click)="onNavigate(1, false)"></div>
+        <div class="btn-nav nav-plants" (click)="onNavigate(2, false)"></div>
+        <div class="btn-nav nav-settings highlight"></div>
+    </footer>
+  </div>
+</ion-content>

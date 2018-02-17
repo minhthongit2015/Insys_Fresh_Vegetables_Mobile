@@ -1,0 +1,45 @@
+
+
+.input-table {
+  width: 100%;
+  tr.input-group {
+    position: relative;
+    
+    td {
+      position: relative;
+    }
+    .input-label {
+      font-size: 20px;
+      color: inherit;
+      white-space: nowrap;
+    }
+    input {
+      color: inherit;
+      flex-grow: 10;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 20px;
+    }
+  }
+  ion-datetime {
+    font-size: 20px;
+    padding: 0 10px;
+  }
+}
+
+.datetime-text {
+  font-size: 20px;
+}
+
+.icon {
+  background: transparent center center/contain no-repeat;
+  width: 25px;
+  height: 25px;
+  display: inline-block;
+
+  &.ico-plants {
+    background-image: url(../assets/UI/icon/plants.svg);
+    margin-bottom: -5px;
+  }
+}

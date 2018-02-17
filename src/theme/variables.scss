@@ -5,8 +5,6 @@ $font-path: "../assets/fonts";
 
 @import "ionic.globals";
 
-// @import url("../nv.d3_1.8.1.css");
-
 // Shared Variables
 // --------------------------------------------------
 // To customize the look and feel of this app, you can override
@@ -79,3 +77,8 @@ $colors: (
 
 @import "roboto";
 @import "noto-sans";
+
+// My own
+// --------------------------------------------------
+@import "global";
+@import "vegetables";

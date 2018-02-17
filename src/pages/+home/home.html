@@ -1,48 +1,77 @@
 <ion-content scroll="false">
   <div class="background">
+    <!-- HEADER / NAVIGATION / TOOLBAR -->
     <header>
       <div class="forecast"></div>
-      <div class="breadscrumb" [ngClass]="{show: isShowQuickView || isShowCreatePlantPanel}">
-        <div class="selected-plant {{selectedPlant?.type}}" [ngClass]="{show: isShowQuickView}"></div>
-        <i class="breadscrumb-bridge" [ngClass]="{show: isShowDetails||isCameraView}"></i>
-        <div class="current-page clickable" [ngClass]="{camera: isCameraView, details: isShowDetails, show: isShowDetails||isCameraView}"></div>
-        <div class="btn-back clickable" (click)="onBackToMain()"></div>
+      <div class="nav show">
+        <div class="nav-box">
+          <div class="selected-plant {{selectedPlant?.plantType}}" [ngClass]="{show: isShowQuickView}"></div>
+        </div>
+        <i class="nav-bridge" [ngClass]="{show: isShowDetails||isCameraView}"></i>
+        <div class="nav-box">
+          <div class="current-view clickable show" [ngClass]="{camera: isCameraView, details: isShowDetails, show: isShowDetails||isCameraView}"></div>
+        </div>
+        <div class="nav-box">
+          <div class="btn-back clickable" (click)="onBackToMain()" [ngClass]="{show: isShowCreatePlantPopup || isShowQuickView}"></div>
+          <div class="btn-addnew clickable" (click)="onCreatePlant()" [ngClass]="{show: !isShowCreatePlantPopup && !isShowQuickView}"></div>
+        </div>
       </div>
     </header>
+
+    <!-- BODY -->
     <section id="body" (click)="onClickOut($event)">
       <!-- List Plants -->
-      <div class="plant clickable" *ngFor="let plant of currentPlants" title="{{plant.name}}"
-        (click)="onViewPlant(plant)">
-        <div class="plant-icon {{plant.type}}"></div>
+      <div class="cylinder" *ngFor="let cylinder of cylinders">
+        <label class="cylinder-name">{{ cylinder.name }}</label>
+        <div class="plant clickable" *ngFor="let plant of cylinder.plants" title="{{ plant.alias }}"
+          (click)="onViewPlant(plant, cylinder)">
+          <div class="plant-icon {{ plant.plantType }}"></div>
+        </div>
+        <div class="plant"></div>
+        <div class="plant"></div>
       </div>
-      <!-- Create new plant button -->
-      <div class="plant clickable" title="Thêm cây trồng mới" (click)="onCreatePlant()">
-        <div class="plant-icon btn-addnew"></div>
-      </div>
-      <div class="plant"></div>
-      <div class="plant"></div>
 
       <!-- Create Plant Panel -->
-      <div class="newplant-popup" [ngClass]="{show: isShowCreatePlantPanel}">
+      <div class="newplant-popup" [ngClass]="{show: isShowCreatePlantPopup}">
         <div class="newplant-header">Cây Trồng Mới</div>
         <div class="newplant-body">
-          <div class="select-plant-type"></div>
           <table class="input-table">
-            <tr class="input-group"><td><label class="input-label" for="newplant-name">Tên:</label></td><td><input type="text" id="newplant-name" placeholder="Tên cây trồng"></td></tr>
-            <tr class="input-group"><td><label class="input-label">Ngày ươm:</label></td><td><ion-datetime displayFormat="DD MMMM YYYY" pickerFormat="DDDD DD MMM YYYY" [(ngModel)]="myDate" doneText="Xong" cancelText="Hủy"></ion-datetime></td></tr>
+            <tr class="input-group">
+              <td><label class="input-label" for="newplant-name">Tên:</label></td>
+              <td><input type="text" id="newplant-name" placeholder="Tên cây trồng"></td>
+            </tr>
+            <tr class="input-group">
+              <td><label class="input-label" for="newplant-position">Vị trí:</label></td>
+              <td>
+                <ion-select id="newplant-position" [(ngModel)]="newPlantPosition" okText="OK" cancelText="Mặc định">
+                  <ion-option *ngFor="let cylinder of cylinders" value="{{ cylinder.name }}">{{ cylinder.name }}</ion-option>
+                </ion-select>
+              </td>
+            </tr>
+            <tr class="input-group">
+              <td><label class="input-label">Ngày ươm:</label></td>
+              <td><ion-datetime displayFormat="DD MMMM YYYY" pickerFormat="DDDD DD MMM YYYY" [(ngModel)]="newPlantingDate" doneText="Xong" cancelText="Hủy"></ion-datetime></td>
+            </tr>
+            <tr class="input-group">
+              <td><label class="input-label" for="newplant-type">Loại cây:</label></td>
+              <td><input type="text" id="newplant-type" placeholder="Tên loại cây trồng"></td>
+            </tr>
+            <tr><td colspan="2">
+
+            </td></tr>
           </table>
           <div class="create-plant-btn">Tạo Cây Trồng Mới</div>
         </div>
       </div>
 
-      <!-- Main Panel -->
+      <!-- Quick View Panel -->
       <article id="quickview-panel" [ngClass]="{show: isShowQuickView, expand: isShowDetails||isCameraView}">
         <div class="quickview-panel-inner">
           <!-- Nav Panel -->
           <div class="selected-plant-nav">
             <div class="selected-plant-detail clickable" (click)="onViewDetailPlant(selectedPlant)" [ngClass]="{show: isShowDetails}"></div>
-            <div class="selected-plant-icon clickable {{selectedPlant?.type}}" (click)="onViewDetailPlant(selectedPlant)">
-              <div class="connection-light clickable" [ngClass]="{connecting: blctl.connecting, online: blctl.connected}"></div>
+            <div class="selected-plant-icon clickable {{selectedPlant?.plantType}}" (click)="onViewDetailPlant(selectedPlant)">
+              <div class="connection-light clickable" [ngClass]="{connecting: connectMgr.connecting, online: connectMgr.connected}"></div>
             </div>
             <div class="selected-plant-camera clickable" (click)="onViewCamera(selectedPlant)"></div>
           </div>
@@ -54,44 +83,33 @@
                 <div class="plant-details-label">Chế độ hoạt động</div>
                 <div class="plant-details-tab">
                   <div class="plant-details-head">
-                    <div class="plant-btn-label clickable default" [ngClass]="{checked: selectedPlant?.auto}" (click)="onToggleAuto(true)">Tự động</div>
-                    <div class="plant-btn-label clickable default" [ngClass]="{checked: !selectedPlant?.auto}" (click)="onToggleAuto(false)">Thủ công</div>
+                    <div class="plant-btn-label clickable default" [ngClass]="{checked: selectedCylinder?.equipments?.automation}" (click)="onUserSet($event, 'automation', true)">Tự động</div>
+                    <div class="plant-btn-label clickable default" [ngClass]="{checked: !selectedCylinder?.equipments?.automation}" (click)="onUserSet($event, 'automation', false)">Thủ công</div>
                   </div>
 
-                  <!-- Details -->
+                  <!-- Equipments > Action devices -->
                   <div class="plant-details-body">
-                    <table class="plant-btn-hidden-group" [ngClass]="{show: selectedPlant?.auto}">
+                    <table class="plant-btn-hidden-group show" [ngClass]="{lock: selectedCylinder?.equipments?.automation}">
                       <tr>
                         <td>Tưới Nước + Dinh dưỡng</td>
                         <td><label class="btn-switch">
-                            <input type="checkbox" checked>
+                            <input type="checkbox" [checked]="selectedCylinder?.equipments?.pump" (click)="onUserSet($event, 'pump')">
                             <div class="btn-slider"></div></label></td>
                       </tr>
                       <tr>
-                        <td>Châm phân (pH: {{selectedPlant?.pH}})</td>
+                        <td>Châm phân (ppm: {{selectedCylinder?.equipments?.sensors?.ppm}})</td>
                         <td>
                           <label class="btn-switch">
-                            <input type="checkbox" checked>
-                            <div class="btn-slider"></div>
-                          </label>
-                        </td>
-                      </tr>
-                    </table>
-                    <table class="plant-btn-hidden-group" [ngClass]="{show: !selectedPlant?.auto}">
-                      <tr>
-                        <td>Tưới Nước + Dinh dưỡng</td>
-                        <td>
-                          <label class="btn-switch">
-                            <input type="checkbox" [checked]="selectedPlant?.pins[3] && selectedPlant?.pins[3].state" (change)="onSwitchChange(3, $event)">
+                            <input type="checkbox" [checked]="selectedCylinder?.equipments?.nutrient" (click)="onUserSet($event, 'nutrient')">
                             <div class="btn-slider"></div>
                           </label>
                         </td>
                       </tr>
                       <tr>
-                        <td>Châm phân (pH: {{selectedPlant?.pH}})</td>
+                        <td>Ánh sáng ({{selectedCylinder?.equipments?.sensors?.light}} lux)</td>
                         <td>
                           <label class="btn-switch">
-                            <input type="checkbox" [checked]="selectedPlant?.pins[1] && selectedPlant?.pins[1].state" (change)="onSwitchChange(1, $event)">
+                            <input type="checkbox" [checked]="selectedCylinder?.equipments?.light" (click)="onUserSet($event, 'light')">
                             <div class="btn-slider"></div>
                           </label>
                         </td>
@@ -107,12 +125,24 @@
                 <div  class="plant-envs">
                   <table>
                     <tr>
+                      <td>Vị trí</td>
+                      <td>{{ selectedCylinder?.name }}</td>
+                    </tr>
+                    <tr>
                       <td>Nhiệt độ / Độ ẩm</td>
-                      <td>{{selectedPlant?.temperature}}ºC / {{selectedPlant?.humidity}}%</td>
+                      <td>{{selectedCylinder?.equipments?.sensors?.temperature}}ºC / {{selectedCylinder?.equipments?.sensors?.humidity}}%</td>
+                    </tr>
+                    <tr>
+                      <td>Dinh dưỡng</td>
+                      <td>{{selectedCylinder?.equipments?.sensors?.ppm}} ppm</td>
+                    </tr>
+                    <tr>
+                      <td>Ánh sáng</td>
+                      <td>{{selectedCylinder?.equipments?.sensors?.light}} lux</td>
                     </tr>
                     <tr>
                       <td>pH</td>
-                      <td>{{selectedPlant?.pH}}</td>
+                      <td>{{selectedCylinder?.equipments?.sensors?.pH}}</td>
                     </tr>
                   </table>
                 </div>
@@ -133,7 +163,7 @@
             <!-- Camera -->
             <div class="camera-panel-wrapper" [ngClass]="{show: isCameraView}">
               <div class="camera-panel">
-                <iframe width="100%" height="100%" [src]="ytbchannel" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen></iframe>
+                <iframe width="100%" height="100%" [src]="ytbchannel" frameborder="0" gesture="media" allow="encrypted-media" allowfullscreen *ngIf="isCameraView"></iframe>
               </div>
             </div>
 
@@ -146,113 +176,15 @@
               </div>
             </div>
             <!-- Plant Name -->
-            <div class="selected-plant-name" [ngClass]="{show: !isShowDetails && !isCameraView}">{{selectedPlant?.name}}</div>
+            <div class="selected-plant-name" [ngClass]="{show: !isShowDetails && !isCameraView}">{{selectedPlant?.alias}}</div>
           </div>
         </div>
       </article>
     </section>
     <footer>
-      <div class="btn-nav nav-home"></div>
+      <div class="btn-nav nav-home" (click)="onNavigate(1, false)"></div>
       <div class="btn-nav nav-plants highlight"></div>
-      <div class="btn-nav nav-settings"></div>
+      <div class="btn-nav nav-settings" (click)="onNavigate(3, true)"></div>
     </footer>
   </div>
-  <!-- <div class="background">
-    <div class="weather">
-      <div class="weather-icon">
-        <div class="weather-date">{{ clock | async | date:'dd/MM/yyyy' }}</div>
-      </div>
-      <div class="env">
-        <div class="env-time">{{ clock | async | date:'HH:mm:ss' }}</div>
-        <div class="env-info">
-          <div class="env-temp">{{averageTemp}}°C</div>
-          <div class="env-humi">{{averageHumi}}%</div>
-        </div>
-      </div>
-      <div class="icon-cloud">
-      </div>
-      <div class="btn-logout" (click)="onLogout()">Đăng Xuất <div class="btn-icon-logout"></div></div>
-    </div>
-    <hr class="roundy-line">
-    <div class="gardens">
-      <div class="garden" *ngFor="let garden of currentGardens" id="g{{garden.managerDeviceId}}">
-        <div class="gd-name" (click)="onToggleDetail(garden.managerDeviceId)">{{ garden.name }}</div>
-        <div class="gd">
-          <div class="gd-short">
-            <div class="gd-icon {{ garden.type }}"></div>
-            <div class="gd-info">
-              <div class="gd-table-wrapper">
-                <table>
-                  <tr><td>Ngày trồng</td><td>{{ garden.start }}</td></tr>
-                  <tr><td>Mức phát triển</td><td>{{ garden.progress }} %</td></tr>
-                  <tr><td>Thu hoạch sau</td><td>{{ garden.remaining }} ngày</td></tr>
-                  <tr><td>Phát triển</td><td>{{ garden.growth_status }}</td></tr>
-                  <tr><td>Sâu bệnh</td><td>{{ garden.pests }}</td></tr>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div class="gd-detail">
-            <div class="gd-dt">
-              <div class="gd-dt-progress">
-                <div class="gd-dt-curprogress"></div>
-              </div>
-              <ion-grid>
-                <ion-row class="hr-bottom">
-                  <ion-col col-12>Tự động Tưới nước/Bón phân <ion-toggle checked="{{ garden.config.auto }}"
-                    [(ngModel)]="garden.config.auto" (ionChange)="onToggleAuto()"></ion-toggle></ion-col>
-                  <ion-col col-6 *ngIf="!garden.config.auto">Tưới nước <ion-toggle checked="{{garden.config.water_manure}}"
-                    [(ngModel)]="garden.config.water_manure" (ionChange)="onWater(garden)"></ion-toggle></ion-col>
-                  <ion-col col-6 *ngIf="!garden.config.auto">Bón phân <ion-toggle checked="{{garden.config.water_manure}}"
-                    [(ngModel)]="garden.config.water_manure"></ion-toggle></ion-col>
-                </ion-row>
-                <ion-row>
-                    <ion-col col-6>Lượng phân còn lại</ion-col>
-                    <ion-col col-6>1Kg (20 ngày)</ion-col>
-                </ion-row>
-              </ion-grid>
-              <div class="wt-chart"> -->
-                <!-- <div class="water-planning">
-                  <div class="water-planning-icon"></div>
-                  <div class="time-to-water">Tưới nước/Bón phân sau 20p nữa</div>
-                </div> -->
-                <!-- <div class="growth-chart">
-                  <insys-chart [options]="options" [data]="garden['chartViewData']" #insyschart></insys-chart>
-                  <div class="realtime">
-                    <div class="temperature">{{garden['temperature']}}°C</div>
-                    <div class="humidity">{{garden['humidity']}}%</div>
-                  </div>
-                </div>
-              </div>
-              <div class="timetable">
-                <div class="timetable-header">Đặt lịch tưới nước/bón phân</div>
-                <div class="timetable-detail">
-                  <ion-list>
-                    <ion-item>
-                      <ion-label>Tưới 200ml lúc 06:30</ion-label>
-                      <ion-select [(ngModel)]="weekday" okText="Lưu thay đổi" cancelText="Hủy thay đổi">
-                        <ion-option value="1">hằng ngày</ion-option>
-                        <ion-option value="2">cách mỗi n ngày</ion-option>
-                      </ion-select>
-                    </ion-item>
-                    <ion-item>
-                      <ion-label>Tưới 200ml lúc 17:30</ion-label>
-                      <ion-select [(ngModel)]="weekday" okText="Lưu thay đổi" cancelText="Hủy thay đổi">
-                        <ion-option value="1" data-ng-selected="true">hằng ngày</ion-option>
-                        <ion-option value="2">cách mỗi n ngày</ion-option>
-                      </ion-select>
-                    </ion-item>
-                    <button ion-button class="form-control btn btn-add"><i aria-hidden="true" class="fa fa-plus-circle"></i></button>
-                  </ion-list>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="gd-detail-toggle">
-            <div class="gd-detail-txt" (click)="onToggleDetail(garden.managerDeviceId)">xem chi tiết</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> -->
 </ion-content>

@@ -9,12 +9,8 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 
-import { Items } from '../mocks/providers/items';
-import { Settings } from '../providers/providers';
-import { User } from '../providers/providers';
-import { API } from '../providers/providers';
+import { Settings, GardenServices } from '../providers/providers';
 import { MyApp } from './app.component';
-import { Gardens } from '../providers/gardens/gardens';
 
 // The translate loader needs to know where to load i18n files
 // in Ionic's static asset pipeline.
@@ -64,9 +60,7 @@ export function provideSettings(storage: Storage) {
     MyApp
   ],
   providers: [
-    API,
-    Items, Gardens,
-    User,
+    GardenServices,
     Camera,
     SplashScreen,
     StatusBar,

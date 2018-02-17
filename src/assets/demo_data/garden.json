@@ -1,0 +1,27 @@
+[{
+  "name": "Trụ Xà Lách",
+  "equipment_set_name": "Hydroponic_01",
+  "plants": [{
+    "alias": "Xà Lách 01",
+    "plant_type": "butterhead_lettuce",
+    "plant_id": "butterhead_lettuce-01",
+    "planting_date": "16/1/2018"
+  }],
+  "equipments": {
+    "pump": true,
+    "light": true,
+    "nutrient_valve": true,
+    "sensors": {
+      "temperature": 25.6,
+      "humidity": 84.4,
+      "light": 500,
+      "ppm": 1500,
+      "pH": 5.8
+    },
+    "signal_lights": {
+      "hardware": true,
+      "automation": true,
+      "environment": true
+    }
+  }
+}]

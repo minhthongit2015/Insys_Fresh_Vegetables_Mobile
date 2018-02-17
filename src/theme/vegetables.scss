@@ -1,0 +1,16 @@
+
+.red-cabbage, .cabbage, .broccoli, .lettuce, .butterhead_lettuce {
+  background: url(../assets/UI/vegetables/broccoli.png) center center/contain no-repeat;
+}
+
+.red-cabbage, .cabbage {
+  background-image: url(../assets/UI/vegetables/red-cabbage.png) !important;
+}
+
+.broccoli {
+  background-image: url(../assets/UI/vegetables/broccoli.png) !important;
+}
+
+.lettuce, .butterhead_lettuce {
+  background-image: url(../assets/UI/vegetables/lettuce.png) !important;
+}

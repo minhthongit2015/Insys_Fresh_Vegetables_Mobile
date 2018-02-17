@@ -1,0 +1,16 @@
+
+[
+  {
+    "plant_name": "Xà lách mỡ (Butterhead Lettuce)",
+    "plant_type": "butterhead_lettuce",
+    "life_cycle": 45
+  }, {
+    "plant_name": "Bông cải xanh (Broccoli)",
+    "plant_type": "broccoli",
+    "life_cycle": 30
+  }, {
+    "plant_name": "Bắp cải (Cabbage)",
+    "plant_type": "cabbage",
+    "life_cycle": 35
+  }
+]

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { IonicPage, NavController } from 'ionic-angular';
-import { UserModule } from '../../providers/providers';
+// import { UserModule } from '../../providers/providers';
 
 /**
  * The Welcome Page is a splash page that quickly describes the app,
@@ -17,12 +17,12 @@ export class MyWelcomePage {
 
   constructor(public navCtrl: NavController) { }
 
-  user: UserModule;
-  login() {
-    this.user = new UserModule();
-    if (this.user.isLogedIn()) this.navCtrl.setRoot('HomePage');
-    else this.navCtrl.push('MyLoginPage');
-  }
+  // user: UserModule;
+  // login() {
+  //   this.user = new UserModule();
+  //   if (this.user.isLogedIn()) this.navCtrl.setRoot('HomePage');
+  //   else this.navCtrl.push('MyLoginPage');
+  // }
 
   signup() {
     this.navCtrl.push('SignupPage');
