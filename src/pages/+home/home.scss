@@ -1,18 +1,14 @@
 
-$effect: false;
-$light: true;
-$bgs: "background.png", "bg-01.jpg", "bg-02.jpg", "bg-03.jpg", "bg-04.jpg", "bg-05.jpg", "bg-06.jpg", "bg-07.jpg";
-$bg: nth($bgs, 2+6);
-
-@if $bg == nth($bgs, 1) {
-  $light: false;
-}
-
 page-home {
 
   ion-content {
     background: url('../assets/UI/background/'+$bg) center center/cover fixed no-repeat;
     overflow: hidden;
+  }
+  ion-select {
+    width: 100%; max-width: 100%; font-size: 20px; 
+    position: relative;
+    padding: 0 !important;
   }
 
   .clickable {
@@ -86,7 +82,7 @@ page-home {
             bottom: 0;
             right: 0;
             border-radius: 50%;
-            background: rgba(227, 237, 255, 0.38) center/80% no-repeat;
+            background: rgba(227, 237, 255, 0) center/80% no-repeat;
             box-sizing: border-box;
             border: 3px solid rgba(227, 237, 255, 1);
             opacity: 0;
@@ -126,6 +122,10 @@ page-home {
           background-image: url("../assets/UI/icon/plus.svg");
           background-size: 60%;
         }
+        .btn-remove {
+          background-image: url("../assets/UI/icon/remove.svg");
+          background-size: 60%;
+        }
       }
     }
   
@@ -133,53 +133,59 @@ page-home {
       position: relative;
       height: calc(100% - 204px);
       display: block;
+      .cylinders-wrapper {
+        overflow: auto;
+        max-height: 100%;
+        position: relative;
 
-      .cylinder {
-        display: flex;
-        justify-content: space-around;
-        flex-wrap: wrap;
-        align-content: flex-start;
-        background: #f0f8ff17;
-        margin: 15px 10px 4px;
-        border: 2px solid aliceblue;
-        border-radius: 10px;
-
-        .cylinder-name {
-          position: absolute;
-          top: 5px;
-          background: #ece3d1;
-          color: #29321a;
+        .cylinder {
+          display: flex;
+          justify-content: space-around;
+          flex-wrap: wrap;
+          align-content: flex-start;
+          background: #f0f8ff17;
+          margin: 15px 10px 4px;
           border: 2px solid aliceblue;
-          padding: 2px 6px;
-          font-size: 16px;
           border-radius: 10px;
-        }
-
-        .plant {
-          width: 25%;
-          margin: 4.16666%;
-          margin-bottom: 7px;
-          height: 0;
-          padding-top: 25%;
-          border-radius: 50%;
-          background: rgba(255,255,255,.37);
-          position: relative;
-          &:empty {
-            visibility: hidden;
-            opacity: 0;
-            padding: 0;
-            margin-top: 0;
-            margin-bottom: 0;
+  
+          .cylinder-name {
+            position: absolute;
+            top: 5px;
+            background: #ece3d1;
+            color: #29321a;
+            border: 2px solid aliceblue;
+            padding: 2px 6px;
+            font-size: 16px;
+            border-radius: 10px;
           }
   
-          .plant-icon {
-            position: absolute;
-            top: 15%;
-            left: 15%;
-            width: 70%;
-            height: 70%;
-            @if $effect == true {
-              filter: drop-shadow(4px 4px 2px #000);
+          .plant {
+            width: 25%;
+            margin: 4.16666%;
+            margin-bottom: 7px;
+            height: 0;
+            padding-top: 25%;
+            border-radius: 50%;
+            background: rgba(255,255,255,.37);
+            position: relative;
+            &:empty {
+              visibility: hidden;
+              opacity: 0;
+              padding: 0;
+              margin-top: 0;
+              margin-bottom: 0;
+            }
+    
+            .plant-icon {
+              position: absolute;
+              top: 15%;
+              left: 15%;
+              width: 70%;
+              height: 70%;
+              background: rgba(227, 237, 255, 0) center center/contain no-repeat;
+              @if $effect == true {
+                filter: drop-shadow(4px 4px 2px rgba(0,0,0,.7));
+              }
             }
           }
         }
@@ -188,14 +194,15 @@ page-home {
       .newplant-popup {
         position: absolute;
         border-radius: 7px;
-        border: 7px solid rgba(77, 77, 77, 0.85);
+        border: 2px solid rgba(255, 255, 255, 0.77);
         top: 10px;
         left: 20px;
         right: 20px;
         bottom: 10px;
-        background: rgba(26, 26, 26, 0.79);
+        background: rgba(70, 50, 16, 0.75);
         background-clip: padding-box;
         display: none;
+        overflow: hidden;
         &.show { display: block; }
 
         .newplant-header {
@@ -206,13 +213,48 @@ page-home {
           border-bottom: 1px solid #fff;
           padding: 4px 10px 4px;
           margin-bottom: 10px;
-          background: rgba(0, 0, 0, 0.49);
+          background: rgba(120, 89, 33, 0.86);
         }
         .newplant-body {
           padding: 8px 10px;
           color: #fff;
+          display: flex;
+          flex-direction: column;
+          height: calc(100% - 50px);
+
+          .list-plant-lib {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            margin: 4px 0;
+            overflow: auto;
+            flex-grow: 10;
+            box-shadow: inset 0 3px 35px #fff;
+            border-radius: 5px;
+            border: 1px solid #fff;
+
+            .plant-lib {
+              width: 70px;
+              margin: 4px 2px;
+              &:empty { max-height: 0; visibility: hidden; }
+
+              .plant-lib-icon {
+                width: 70px;
+                height: 70px;
+                background: rgba(255, 255, 255, 0.2) center center/70% 70% no-repeat;
+                border-radius: 50%;
+              }
+              input:checked + .plant-lib-icon { border: 1px solid #fff; }
+              .plant-lib-label {
+                color: #fff;
+                text-align: center;
+              }
+            }
+          }
 
           input, ion-select { width: 100%; max-width: 100%; font-size: 20px; }
+          input::-webkit-input-placeholder { color: #aaa; }
+          input.hidden { display: none; }
           .create-plant-btn {
             font-size: 25px;
             text-align: center;
@@ -220,9 +262,9 @@ page-home {
             background: #70bd95;
             border-bottom: 4px solid #c0ffe1;
             border-radius: 4px 4px 2px 2px;
-            margin-top: 15px;
+            margin-top: 5px;
             &:active {
-              margin-top: 17px;
+              margin-top: 7px;
               border-bottom-width: 2px;
             }
           }
@@ -251,7 +293,6 @@ page-home {
         }
 
         &.expand {
-          background-image: url("../assets/UI/background/details-panel.svg");
           background-position: center 5px;
           background-size: cover;
           height: 100%;
@@ -260,6 +301,7 @@ page-home {
           }
 
           .selected-plant-icon {
+            background: rgba(227, 237, 255, 0) center center/contain no-repeat;
             margin-bottom: 8px !important;
             .connection-light {
               bottom: 5px !important;
@@ -300,6 +342,7 @@ page-home {
               margin: 0 26px 26px;
               display: flex;
               justify-content: center;
+              background: rgba(227, 237, 255, 0) center center/contain no-repeat;
               @if $effect == true {
                 transition: all .3s ease-in-out;
                 filter: drop-shadow(0 0 15px #fff) drop-shadow(0 0 35px #fff);
@@ -325,7 +368,7 @@ page-home {
               box-sizing: border-box;
               bottom: 22px;
               &.connecting {
-                background: #caa31a;
+                background: #ffc65e;
               }
               &.online {
                 background: #24be3d;
@@ -350,7 +393,7 @@ page-home {
               &.show {
                 opacity: 1;
                 visibility: visible;
-                max-height: 600px;
+                max-height: 1000px;
               }
               .plant-details-group {
                 padding: 4px 10px;
@@ -383,16 +426,36 @@ page-home {
                 }
                 .plant-details-body {
                   border: 1px solid rgba(50, 215, 54, 0.45);
-                  padding: 5px 5px 0px;
+                  padding: 5px;
                   background: rgba(255,255,255,.2);
+                  position: relative;
+
+                  &.lock * { pointer-events: none; }
+                  &:after {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    background: rgba(0, 0, 0, 0.5) url(../assets/UI/icon/lock.png) center center/auto 70px no-repeat;
+                    opacity: 0;
+                    visibility: hidden;
+                    pointer-events: none;
+                  }
+                  &.lock:after {
+                    opacity: 1;
+                    visibility: visible;
+                    @if $effect == true {
+                      transition: .3s all ease-in-out;
+                    }
+                  }
 
                   table.plant-btn-hidden-group {
                     width: 100%;
                     display: none;
 
                     &.show { display: table; }
-                    &.lock { pointer-events: none; background: rgba(255,255,255,.2); }
-                    &.lock * { pointer-events: none; }
 
                     tr {
                       td {
@@ -520,7 +583,7 @@ page-home {
             }
   
             .selected-plant-timeline {
-              margin: 10px auto 15px;
+              margin: 10px auto 30px;
               background: #fff;
               width: 80%;
               height: 25px;
@@ -528,18 +591,6 @@ page-home {
               border: 3px solid rgba(255, 255, 255, 0.35);
               background-clip: content-box;
               position: relative;
-  
-              &::after {
-                content: attr(data-cur);
-                width: 100%;
-                left: 0;
-                top: calc(100% + 4px);
-                color: #3ff99e;
-                overflow: visible !important;
-                text-align: center;
-                position: absolute;
-                font-size: 21px;
-              }
   
               .timeline-startday, .timeline-endday {
                 position: absolute;
@@ -574,14 +625,25 @@ page-home {
                   background: url(../assets/UI/icon/plants.svg) center 100%/100% no-repeat !important;
                 }
               }
+              .timeline-cur-text {
+                width: 100%;
+                left: 0;
+                top: calc(100% + 4px);
+                color: #3ff99e;
+                overflow: visible !important;
+                text-align: center;
+                position: absolute;
+                font-size: 21px;
+              }
             }
   
             .selected-plant-name {
+              background: rgba(0, 0, 0, 0.3);
               text-align: center;
-              font-size: 30px;
+              font-size: 24px;
               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
               color: #fff;
-              padding: 5px;
+              padding: 0 0 4px;
               opacity: 0;
               visibility: hidden;
               max-height: 15px;
@@ -601,87 +663,6 @@ page-home {
           }
         }
       }
-    }
-  
-    footer {
-      width: 100%;
-      height: 84px;
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-      border-top: 1px solid #222;
-      @if $light == true {
-        background: rgba(0, 0, 0, 0.75);
-        border-color: #fff;
-      } @else {
-        background: rgba(255, 255, 255, 0.12);
-      }
-
-      .btn-nav {
-        width: 15%;
-        height: 0;
-        padding-top: 15%;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.18);
-        position: relative;
-        display: flex;
-        @if $effect == true {
-          transition: all .3s ease-in-out;
-        }
-
-        &.highlight {
-          width: 17.5%;
-          padding-top: 17.5%;
-        }
-        
-        &.highlight::before {
-          content: "";
-          position: absolute;
-          top: -5px;
-          left: -5px;
-          width: calc(100% + 10px);
-          height: calc(100% + 10px);
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 50%;
-          @if $effect == true {
-            transition: all .3s ease-in-out;
-          }
-        }
-
-        &::after {
-          content: "";
-          position: absolute;
-          top: 15%;
-          left: 15%;
-          width: 70%;
-          height: 70%;
-          @if $effect == true {
-            transition: all .3s ease-in-out;
-          }
-        }
-        &.highlight::after {
-          top: 7.5%;
-          left: 7.5%;
-          width: 85%;
-          height: 85%;
-        }
-
-        &.nav-home::after, &.nav-plants::after, &.nav-settings::after {
-          background: url(../assets/UI/icon/home.svg) center center/contain no-repeat;
-        }
-        
-        &.nav-home::after {
-          background-image: url(../assets/UI/icon/home.svg) !important;
-        }
-        
-        &.nav-plants::after {
-          background-image: url(../assets/UI/icon/plants.svg) !important;
-        }
-        
-        &.nav-settings::after {
-          background-image: url(../assets/UI/icon/settings.svg) !important;
-        }
-      }
-    }
-  }
+    } // End [#body]
+  } // End [.background]
 }

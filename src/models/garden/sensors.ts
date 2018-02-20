@@ -14,4 +14,12 @@ export class Sensors {
     this.ppm = ppm;
     this.pH = pH;
   }
+
+  public reload(newSensorsState) {
+    this.temperature= newSensorsState.temperature;
+    this.humidity = newSensorsState.humidity;
+    this.light = newSensorsState.light;
+    this.ppm = newSensorsState.ppm;
+    this.pH = newSensorsState.pH;
+  }
 }

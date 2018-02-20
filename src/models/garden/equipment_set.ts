@@ -1,6 +1,6 @@
 import { Sensors } from "./sensors";
 
-export class Equipments {
+export class EquipmentSet {
   public pump: boolean;
   public nutrient: boolean;
   public light: boolean;
@@ -27,5 +27,15 @@ export class Equipments {
     this.hardware = hardware;
     this.environment = environment;
     this.automation = automation;
+  }
+
+  public reload(newEquipState) {
+    this.automation = newEquipState.automation
+    this.pump = newEquipState.pump;
+    this.nutrient = newEquipState.nutrient;
+    this.light = newEquipState.light;
+    this.sensors.reload(newEquipState.sensors);
+    this.hardware = newEquipState.hardware;
+    this.environment = newEquipState.environment;
   }
 }

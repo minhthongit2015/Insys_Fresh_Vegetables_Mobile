@@ -1,15 +1,24 @@
-
-$bg: nth($bgs, 9 + (1));
+$bg: nth($bgs, 12 + (1));
 
 @if $bg == nth($bgs, 1) {
   $light: false;
 }
 
-page-settings {
+page-welcome {
 
   ion-content {
-    background: url('../assets/UI/background/'+$bg) center center/cover fixed no-repeat;
+    background: url('../assets/UI/background/'+$bg) center center/contain;
     overflow: hidden;
+  }
+
+  #actress {
+    background: url('../assets/UI/others/customer-service-person.png') center bottom/contain no-repeat;
+    position: fixed;
+    bottom: 84px;
+    left: 10px;
+    width: 150px;
+    height: 225px;
+    filter: drop-shadow(0 0 14px rgba(255,255,255,.4));
   }
 
   .clickable {
@@ -31,6 +40,16 @@ page-settings {
     background: rgba(155, 207, 247, 0.30);
     &.half { background: rgba(155, 207, 247, 0.5); }
     &.full { background: rgba(101, 154, 195, .9); }
+  }
+
+  .label-welcome {
+    font-size: 24px;
+    color: #fff;
+    margin: 10px 0;
+    display: block;
+    text-align: center;
+    
+    &.half { font-size: 22px; }
   }
 
   .alt-view {
@@ -57,6 +76,25 @@ page-settings {
       width: 100%;
       td:first-child { text-align: left; }
       td:nth-child(2) { text-align: center; }
+    }
+  }
+
+  .btn-metal {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #366e9a;
+    color: #fff;
+    border-radius: 10px;
+    margin: 10px 10px;
+    font-size: 20px;
+    font-weight: bold;
+    border-bottom: 4px solid #0e1a2b;
+    -webkit-box-shadow: 2px 1px 14px -5px #10202a;
+    box-shadow: 2px 1px 14px -5px #10202a;
+
+    &:active {
+      margin-top: 12px;
+      border-bottom-width: 2px;
     }
   }
 
@@ -119,7 +157,7 @@ page-settings {
       position: relative;
       height: calc(100% - 84px);
       display: block;
-      padding-top: 24px;
+      padding-top: 10px;
       overflow: auto;
 
       article {
@@ -146,23 +184,11 @@ page-settings {
             font-size: 16px;
             border-radius: 10px;
           }
-        }
-
-        .btn-sky {
-          display: inline-block;
-          padding: 10px 15px;
-          background: #8ecaf9;
-          color: #fff;
-          border-radius: 10px;
-          margin: 10px 10px;
-          font-size: 20px;
-          font-weight: bold;
-          border-bottom: 4px solid #5f97de;
-          box-shadow: 2px 1px 14px -5px #10202a;
-
-          &:active {
-            margin-top: 12px;
-            border-bottom-width: 2px;
+          &.large > label {
+            font-size: 22px;
+          }
+          &.bold > label {
+            font-weight: bold;
           }
         }
         .btn-hide { display: none; }

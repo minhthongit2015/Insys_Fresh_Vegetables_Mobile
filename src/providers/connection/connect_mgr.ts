@@ -25,18 +25,19 @@ export class ConnectionManager {
   }
 
   public setup(garden: Garden) {
+    if (!garden) return
     this.blsctl.setup(garden.bluetooth_addr, (response) => this.onResponse(response));
     this.ws.setup(garden.host, (response) => this.onResponse(response));
   }
 
-  public send(cmds, data, callback: (data) => { }) {
+  public send(cmds, data, onsuccess: (data) => { }, onfailed=null) {
     if (!cmds.length) cmds = [cmds];
     if (cmds.length == 1) cmds.push(this._default_cmd);
     if (cmds.length == 2) cmds.push(this._default_cmd);
     let header = String.fromCharCode(...cmds);
     let packagez = `${header}\xfe${data}\x00\x00`;
 
-    if (callback) this.listener_mapping[header] = callback;
+    if (onsuccess) this.listener_mapping[header] = onsuccess;
 
     if (this.ws.connected) { // If LAN is available then send package via LAN
       this.ws.send(packagez);
@@ -49,6 +50,8 @@ export class ConnectionManager {
         } else {             // If  bluetooth is not connected now, then try connect again and send the package
           this.blsctl.connect(() => {
             this.blsctl.send(packagez);
+          }, () => {
+            if (onfailed) onfailed();
           });
         }
       })

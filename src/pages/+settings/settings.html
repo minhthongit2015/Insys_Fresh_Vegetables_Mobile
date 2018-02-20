@@ -6,15 +6,34 @@
       <article id="binding-sec">
         <div class="article-label"><label>Kết nối</label></div>
 
+        <!-- Current Garden -->
+        <div class="alt-view" [ngClass]="{show: isExistGarden}">
+          <label class="label-info">{{ curGarden?.name }}</label>
+          <div class="table-sky">
+            <table>
+              <tr><td><i class="fa fa-bluetooth"></i> Bluetooth</td><td>{{ curGarden?.bluetooth_addr }}</td></tr>
+              <tr><td><i class="fa fa-wifi"></i> Wifi</td><td>{{ curGarden?.host || "Chưa được thiết đặt" }}</td></tr>
+            </table>
+          </div>
+          <div *ngIf="!curGarden?.host && isExistGarden && !isInConnectScript">
+            <label class="label-info full">Kết nối qua wifi chưa được thiết đặt. Bạn có muốn thiết đặt ngay để có tốt độ kết nối, độ ổn định cao hơn và phạm vi kết nối rộng hơn.</label>
+            <div class="btn-sky" (click)="onContinueToConfigWifi(true)"><i class="fa fa-wifi"></i> Thiết đặt kết nối wifi</div>
+          </div>
+        </div>
+
+        <hr *ngIf="!curGarden?.host && isExistGarden && !isInConnectScript">
+
+        <div class="btn-sky btn-hide" (click)="onGettingStated()" [ngClass]="{show: !isInConnectScript}" *ngIf="!curGarden?.host && isExistGarden && !isInConnectScript">Thêm kết nối mới</div>
+
         <!-- Getting started! -->
-        <div class="alt-view" [ngClass]="{show: false}">
-          <label class="label-info" for="btn-search">Chưa kết nối tới bất kỳ vườn nào</label>
-          <div class="btn-search" id="btn-search">Kết nối ngay</div>
+        <div class="alt-view" [ngClass]="{show: isNoneConnectStage}">
+          <label class="label-info" for="btn-sky">Chưa kết nối tới bất kỳ vườn nào</label>
+          <div class="btn-sky" id="btn-sky" (click)="onGettingStated()">Kết nối ngay!</div>
         </div>
 
         <!-- Searching for available garden -->
-        <div class="alt-view" [ngClass]="{show: false}">
-          <label class="label-info">Tìm kiếm kết nối tới vườn</label>
+        <div class="alt-view" [ngClass]="{show: isGettingStartedStage}">
+          <label class="label-info"><i class="fa fa-bluetooth"></i>Tìm kiếm kết nối tới vườn</label>
           <div class="list-avail">
             <div class="list-body">
               <label>
@@ -38,25 +57,61 @@
           </div>
         </div>
 
-        <!-- Connect successfuly stage -->
-        <div class="alt-view" [ngClass]="{show: true}">
-            <label class="label-info half" for="btn-search">Khởi tạo kết nối thành công. Bạn có thể tiếp tục tới cài đặt kết nối vào mạng nội bộ cho vườn (mất khoảng 2 phút) hoặc tới trang quản lý ngay (bạn có thể trở lại cài đặt kết nối wifi sau).</label>
-            <div class="btn-search"><i class="fa fa-wifi"></i> Cài đặt kết nối wifi</div>
-            <div class="btn-search" (click)="onNavigate(2, false)"><i class="icon ico-plants"></i> Tới trang quản lý vườn</div>
+        <!-- Connect via bluetooth success stage -->
+        <div class="alt-view" [ngClass]="{show: isBluetoothConnectedStage}">
+          <label class="label-info full">Khởi tạo kết nối thành công. Bạn có thể tiếp tục tới cài đặt kết nối vào mạng nội bộ cho vườn (mất khoảng 2 phút) hoặc tới trang quản lý ngay (bạn có thể trở lại cài đặt kết nối wifi sau).</label>
+          <div class="btn-sky" (click)="onContinueToConfigWifi()"><i class="fa fa-wifi"></i> Cài đặt kết nối wifi</div>
+          <div class="btn-sky" (click)="onNavigate(2, false)"><i class="icon ico-plants"></i> Tới trang quản lý vườn</div>
+        </div>
+
+        <!-- Config for connect to home network -->
+        <div class="alt-view" [ngClass]="{show: isConfigWifiStage}">
+          <label class="label-info"><i class="fa fa-wifi"></i> Chọn mạng wifi của bạn</label>
+          <div class="list-avail">
+            <div class="list-body">
+              <label>
+                <input type="radio" name="homenetwork" value="1" [(ngModel)]="selectedWifi">
+                <span>Minh Thai</span>
+              </label>
+              <label>
+                <input type="radio" name="homenetwork" value="2" [(ngModel)]="selectedWifi">
+                <span>IUHYRA</span>
+              </label>
+              <label>
+                <input type="radio" name="homenetwork" value="3" [(ngModel)]="selectedWifi">
+                <span>Circle K</span>
+              </label>
+              <label>
+                <input type="radio" name="homenetwork" value="4" [(ngModel)]="selectedWifi">
+                <span>Sonata</span>
+              </label>
+            </div>
+            <div class="list-foot clickable" (click)="onConnectToHomeWifi()">Kết nối</div>
           </div>
+        </div>
+
+        <!-- Connect via bluetooth success stage -->
+        <div class="alt-view" [ngClass]="{show: isWifiConnectedStage}">
+          <label class="label-info full">Thiết đặt kết nối wifi thành công. Bạn có thể tới trang quản lý ngay.</label>
+          <div class="btn-sky" (click)="onNavigate(2, false)"><i class="icon ico-plants"></i> Tới trang quản lý vườn</div>
+        </div>
 
       </article>
   
       <!-- Anothers settings -->
       <article id="settings-sec">
-          <div class="article-label"><label>Bảo mật</label></div>
+        <div class="article-label"><label>Bảo mật</label></div>
+        <label class="label-info">Đặt mã bảo vệ cho ứng dụng</label>
+        <div>
+          <input class="security-code" type="password" name="appSecurityCode" placeholder="---------" [(ngModel)]="appSecurityCode"><div class="btn-edit"><i class="fa fa-pencil"></i></div>
+        </div>
       </article>
     </section>
 
     <footer>
-        <div class="btn-nav nav-home" (click)="onNavigate(1, false)"></div>
-        <div class="btn-nav nav-plants" (click)="onNavigate(2, false)"></div>
-        <div class="btn-nav nav-settings highlight"></div>
+      <div class="btn-nav nav-home" (click)="onNavigate(1, false)"></div>
+      <div class="btn-nav nav-plants" (click)="onNavigate(2, false)"></div>
+      <div class="btn-nav nav-settings highlight"></div>
     </footer>
   </div>
 </ion-content>
