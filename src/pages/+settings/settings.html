@@ -21,9 +21,9 @@
           </div>
         </div>
 
-        <hr *ngIf="!curGarden?.host && isExistGarden && !isInConnectScript">
+        <hr *ngIf="isExistGarden">
 
-        <div class="btn-sky btn-hide" (click)="onGettingStated()" [ngClass]="{show: !isInConnectScript}" *ngIf="!curGarden?.host && isExistGarden && !isInConnectScript">Thêm kết nối mới</div>
+        <div class="btn-sky btn-hide" (click)="onGettingStated()" [ngClass]="{show: !isInConnectScript}" *ngIf="isExistGarden && !isInConnectScript">Thêm kết nối mới</div>
 
         <!-- Getting started! -->
         <div class="alt-view" [ngClass]="{show: isNoneConnectStage}">

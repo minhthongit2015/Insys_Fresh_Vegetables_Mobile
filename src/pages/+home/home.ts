@@ -136,11 +136,11 @@ export class HomePage {
     this.isShowDetails = false;
     // this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.LANDSCAPE);
   }
-
+  
   onClickOut(e) {
     if (e.path[0].classList.contains("plant-icon")) return;
     for (let p of e.path)
-      if (p.id == "quickview-panel") return;
+      if (p.classList && (p.id == "quickview-panel" || p.classList.contains("newplant-popup"))) return;
     this.onBackToMain();
   }
 

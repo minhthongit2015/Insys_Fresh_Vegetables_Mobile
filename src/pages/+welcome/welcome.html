@@ -3,36 +3,66 @@
 
     <!-- BODY -->
     <section id="body">
+      <img id="branding" src="../assets/UI/others/branding.png">
 
       <!-- Welcome -->
       <article id="binding-sec" *ngIf="!isSetingUp">
-        <div class="article-label large bold"><label>Hướng Dẫn</label></div>
+        <div class="article-label large bold"><label>Welcome!</label></div>
         <label class="label-welcome">Chào mừng bạn đến với hệ thống trồng rau sạch thông minh InSys!</label>
         <hr>
-        <label class="label-welcome half">Để bắt đầu sử dụng đầu tiên bạn cần thiết đặt kết nối tới vườn (<i class="fa fa-cog"></i>). Sau đó bạn có thể tới trang quản lý (<i class="icon ico-plants"></i>) để theo dõi quá trình hoạt động của vườn.</label>
-        <div class="btn-metal btn-hide" (click)="onGettingStated()" [ngClass]="{show: !isInConnectScript}"><i class="fa fa-cog"></i> Thiết Đặt Ngay!</div>
+        <label class="label-welcome offset">Để bắt đầu, đầu tiên bạn cần cài đặt kết nối đến vườn.</label>
+        <div style="text-align: right">
+          <div class="btn-gettingstated" (click)="onGettingStated()"><span>Cài Đặt Ngay! »</span></div>
+        </div>
       </article>
-      <div id="actress"></div>
+      <div id="actress" *ngIf="!isSetingUp"></div>
 
       <!-- Main  -->
-      <article *ngIf="isSetingUp">
+      <div *ngIf="isSetingUp">
+
+        <!-- News -->
         <section>
-          <label class="section-label">Tin Tức</label>
+          <label class="section-label"><span>Tin Tức & Sự Kiện</span></label>
+          <div class="table-news-golden">
+            <table>
+              <tr><td>24/02/2018</td><td>Ra mắt dòng sản phẩm Luxury!</td></tr>
+              <tr><td>16/02/2018</td><td>Lì xì đầu năm!<br>Khuyến mãi 30% tất cả mặt hàng.</td></tr>
+              <tr><td>10/01/2018</td><td>Thêm tính năng phát hiện sâu bệnh qua camera cho bản Premium.</td></tr>
+            </table>
+          </div>
         </section>
+
+        <!-- Products -->
         <section>
-          <label class="section-label">Hỗ Trợ Khách Hàng</label>
-          <div class="table-sky">
+          <label class="section-label"><span>Danh Mục Sản Phẩm</span></label>
+          <div class="table-products-golden">
+            <div class="table-wrapper">
+              <table>
+                <tr class="highlight"><td><div><img src="../assets/UI/others/luxury.png"/></div></td><td>Set Luxury!<br>14.999.000đ</td></tr>
+                <tr><td><div><img src="../assets/UI/others/premium.png"/></div></td><td>Set Premium!<br>7.999.000đ</td></tr>
+                <tr><td><div><img src="../assets/UI/others/home.png"/></div></td><td>Set Home<br>4.999.000đ</td></tr>
+                <tr><td><div><img src="../assets/UI/others/fridge.jpg"/></div></td><td>Bộ ươm mầm thông minh.<br>4.999.000đ</td></tr>
+                <tr><td colspan="2"><div class="btn-go">Tới Trang Sản Phẩm <i class="fa fa-angle-double-right"></i></div></td></tr>
+              </table>
+            </div>
+          </div>
+          <div class="btn-order-wrapper">
+            <div class="btn-order"><span>Đặt Hàng Ngay Set Luxury!{{ selectedProduct?.shortName }}</span></div>
+          </div>
+        </section>
+
+        <!-- Support -->
+        <section>
+          <label class="section-label"><span>Hỗ Trợ Khách Hàng</span></label>
+          <div class="table-golden">
             <table>
               <tr><td><i class="fa fa-phone"></i> Hỗ trợ kỹ thuật</td><td>0169 641 723</td></tr>
               <tr><td><i class="fa fa-phone"></i> Hỗ trợ dịch vụ</td><td>0169 632 873</td></tr>
             </table>
           </div>
         </section>
-        <section>
-          <label class="section-label">Danh Mục Sản Phẩm</label>
-        </section>
 
-      </article>
+      </div>
 
     </section>
 

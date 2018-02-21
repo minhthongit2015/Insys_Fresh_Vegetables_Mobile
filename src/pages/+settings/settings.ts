@@ -122,10 +122,10 @@ export class SettingsPage {
     this.isWifiConnectedStage = true;
 
     if (this.isAddingNewConnectionMethod) {
-      this.curGarden.host = "192.168.1.4:4444";
+      this.curGarden.host = "192.168.1.5:4444";
       this.gardenSvc.saveGarden(this.curGarden);
     } else {
-      this.curGarden = new Garden("Vườn Khí Canh 0" + Math.floor(Math.random()*10), "B8:27:EB:73:2A:5D", "192.168.1.4:4444");
+      this.curGarden = new Garden("Vườn Khí Canh 0" + Math.floor(Math.random()*10), "B8:27:EB:73:2A:5D", "192.168.1.5:4444");
       this.gardenSvc.saveGarden(this.curGarden);
     }
   }

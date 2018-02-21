@@ -6,6 +6,7 @@ footer {
   justify-content: space-evenly;
   align-items: center;
   border-top: 1px solid #222;
+  
   @if $light == true {
     background: rgba(0, 0, 0, 0.75);
     border-color: #fff;
