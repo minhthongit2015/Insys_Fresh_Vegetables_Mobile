@@ -135,6 +135,39 @@ page-home {
       position: relative;
       height: calc(100% - 204px);
       display: block;
+
+      .garden-protected {
+        margin: 30px 20px;
+        padding: 10px;
+        border-top: 5px solid #3d85ce;
+        background: rgba(255,255,255,.8);
+
+        .garder-protected-info {
+          font-size: 20px;
+          text-align: center;
+          font-weight: bold;
+          color: #315d83;
+        }
+
+        .btn-authorize {
+          text-align: center;
+          margin: 12px 8px 0px;
+          div {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #396da0;
+            border-radius: 4px;
+            border-bottom: 4px solid #1b3a58;
+            font-size: 20px;
+            color: #fff;
+            &:active {
+              margin-top: 2px;
+              border-bottom-width: 2px;
+            }
+          }
+        }
+      }
+
       .cylinders-wrapper {
         overflow: auto;
         max-height: 100%;
@@ -263,8 +296,8 @@ page-home {
             font-size: 25px;
             text-align: center;
             padding: 4px;
-            background: #40aac3;
-            border-bottom: 4px solid #34646f;
+            background: #e2aa47;
+            border-bottom: 4px solid #ae791c;
             border-radius: 4px 4px 2px 2px;
             margin-top: 5px;
             &:active {

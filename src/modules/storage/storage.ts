@@ -66,12 +66,6 @@ export class Database {
     for (let key in this)
       if (key.includes(tblname)) delete this[key];
   }
-  dropTable(tblname: string) {
-    if (this[tblname] == null) this.createTable(tblname);
-    for (let id of this[tblname]) this.storage(this.getpath(tblname) + " " + id, null, true);
-    this.storage(this.getpath(tblname), null, true);
-    delete this[tblname];
-  }
 
   insert(obj: any, tblname: string, equal?: any) {
     if (obj == null) return;
@@ -83,7 +77,7 @@ export class Database {
     }
     let increment = this[tblname].length > 0 ? (this[tblname][this[tblname].length - 1] + 1) : 0;
     this[tblname].push(increment); this.storageJSON(this.getpath(tblname), this[tblname]);
-    this.storageJSON(this.getpath(tblname) + " " + increment, obj);
+    this.storageJSON(this.getpath(tblname) + "[" + increment + ']', obj);
     return true;
   }
   insertKey(obj: any, key: string) {
@@ -101,7 +95,7 @@ export class Database {
     if (this[tblname] == null) this.createTable(tblname);
     for (let i in this[tblname]) {
       if (isNaN(this[tblname][i])) break;
-      let recordKey = this.getpath(tblname) + " " + this[tblname][i];
+      let recordKey = this.getpath(tblname) + '[' + this[tblname][i] + ']';
       if (where(this.storageJSON(recordKey))) {
         this.storage(recordKey, null, true);
         this[tblname].splice(i, 1); this.storageJSON(this.getpath(tblname), this[tblname]);
@@ -122,6 +116,12 @@ export class Database {
       this.storageJSON(this.getpath(tblname) + "[" + key + "]", null, true);
     }
   }
+  dropTable(tblname: string) {
+    if (this[tblname] == null) this.createTable(tblname);
+    for (let id of this[tblname]) this.storage(this.getpath(tblname) + '[' + id + ']', null, true);
+    this.storage(this.getpath(tblname), null, true);
+    delete this[tblname];
+  }
 
   query(tblname: string, where: any) {
     let records: any[] = [];
@@ -131,13 +131,13 @@ export class Database {
     return this.storageJSON(this.getpath(key));
   }
   queryWithKey(tblname: string, key: string) {
-    return this.storageJSON(this.getpath(tblname) + "[" + key + "]");
+    return this.storageJSON(this.getpath(tblname) + '[' + key + ']');
   }
   queryTable(tblname: string) {
     let table = [];
     if (this[tblname] == null) this.createTable(tblname);
     for (let key of this[tblname])
-      table.push(typeof key == "number" ? this.storageJSON(this.getpath(tblname) + " " + key) : this.storageJSON(this.getpath(tblname) + "[" + key + "]"));
+      table.push(this.storageJSON(this.getpath(tblname) + '[' + key + ']'));
     return table;
   }
 }

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { IonicPageModule } from 'ionic-angular';
+import { IonicPageModule, AlertController } from 'ionic-angular';
 
 import { SettingsPage } from './settings';
 import { GardenServices } from '../../providers/garden/garden.services';
@@ -21,6 +21,6 @@ import { WebsocketHandle } from '../../providers/connection/websocket';
   exports: [
     SettingsPage
   ],
-  providers: [ GardenServices, GardenSync, ConnectionManager, BluetoothSerial, BluetoothCtl, WebsocketHandle ]
+  providers: [ GardenServices, GardenSync, ConnectionManager, BluetoothSerial, BluetoothCtl, WebsocketHandle, AlertController ]
 })
 export class SettingsPageModule { }

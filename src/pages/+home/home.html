@@ -33,6 +33,10 @@
           <div class="plant"></div>
         </div>
       </div>
+      <div class="garden-protected" *ngIf="connectMgr?.authorized === false">
+        <div class="garder-protected-info">Vườn đã được bảo vệ. Vui lòng nhập mã bảo vệ để kết nối đến vườn.</div>
+        <div class="btn-authorize"><div (click)="onInputSecurityCode()"><i class="fa fa-unlock"></i> Nhập Mã Bảo Vệ</div></div>
+      </div>
 
       <!-- Create Plant Panel -->
       <div class="newplant-popup" [ngClass]="{show: isShowCreatePlantPopup}">

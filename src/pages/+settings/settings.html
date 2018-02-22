@@ -13,6 +13,7 @@
             <table>
               <tr><td><i class="fa fa-bluetooth"></i> Bluetooth</td><td>{{ curGarden?.bluetooth_addr }}</td></tr>
               <tr><td><i class="fa fa-wifi"></i> Wifi</td><td>{{ curGarden?.host || "Chưa được thiết đặt" }}</td></tr>
+              <tr (click)="onSecurityCode()"><td><i class="fa fa-lock"></i> Mã bảo vệ</td><td><span>{{ curGarden?.securityCode ? "* * * * * * * * *" : "- - - - - - - - -" }}</span></td></tr>
             </table>
           </div>
           <div *ngIf="!curGarden?.host && isExistGarden && !isInConnectScript">

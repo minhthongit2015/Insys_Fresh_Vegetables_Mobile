@@ -26,6 +26,7 @@ export class GardenServices {
   setup(connMgr: ConnectionManager) {
     this.connMgr = connMgr
     this.gardenSync.setup(connMgr);
+    this.connMgr.attachGardenService(this);
   }
 
   public discover() {
@@ -43,12 +44,40 @@ export class GardenServices {
       })
     });
   }
+  public checkConnection(garden: Garden, onsuccess, onfailed=null) {
+    this.connMgr.setup(garden);
+    this.connMgr.connect(onsuccess, onfailed);
+  }
+  public checkSecurity(garden, onresult, promptForSecurityCode=true) {
+    this.connMgr.setup(garden);
+    this.connMgr.checkSecurityCode(() => {
+      onresult(true);
+    }, () => {
+      onresult(false);
+      if (promptForSecurityCode) this.connMgr.requireSecurityCode();
+    });
+  }
+
+  public setSecurityCode(oldSecurityCode: string, securityCode: string, callback) {
+    this.connMgr.send([1,2], JSON.stringify([oldSecurityCode, securityCode]), callback);
+  }
 
   public saveGarden(garden: Garden) {
-    this.db.insertKey(garden, "CurrentGarden");
+    this.db.insertWithKey(garden, 'Gardens', garden.name);
+  }
+  public setCurrentGarden(garden: Garden) {
+    this.db.insertKey(garden.name, "CurrentGarden");
+    this.saveGarden(garden);
   }
   public getCurrentGarden(): Garden | null {
-    return this.db.queryKey("CurrentGarden");
+    let currentGardenName = this.db.queryKey("CurrentGarden");
+    return currentGardenName ? this.getGardenByName(currentGardenName) : null;
+  }
+  public getListGarden(): Garden[] {
+    return this.db.queryTable('Gardens');
+  }
+  public getGardenByName(gardenName: string): Garden | null {
+    return this.db.queryWithKey('Gardens', gardenName);
   }
 
   /**

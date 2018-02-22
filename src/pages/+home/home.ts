@@ -1,6 +1,6 @@
 "use strict";
 import { Component, ViewChild } from '@angular/core';
-import { IonicPage, NavController } from 'ionic-angular';
+import { IonicPage, NavController, AlertController } from 'ionic-angular';
 
 /// ---
 
@@ -73,11 +73,11 @@ export class HomePage {
   
   constructor(public navCtrl: NavController,
               public sanitizer: DomSanitizer,
-              // public homeServices: HomeServices,
+              public alertCtrl: AlertController,
               public connectMgr: ConnectionManager,
               public gardenSvc: GardenServices) {
     console.log(213);
-    
+    this.connectMgr.alertCtrl = alertCtrl;
     //
   }
 
@@ -94,12 +94,28 @@ export class HomePage {
     this.getListCylinders();
   }
 
+  public onInputSecurityCode() {
+    this.gardenSvc.checkSecurity(this.curGarden, () => {});
+  }
+
   public getListCylinders() {
     this.connectMgr.connect(() => {
       this.gardenSvc.getListHydroponic((cylinders) => {
         this.cylinders = cylinders;
         if (this.cylinders.length > 0) this.newPlantPosition = this.cylinders[0].id;
       });
+      // this.gardenSvc.checkSecurity(this.curGarden, (isValid) => {
+      //   if (this.curGarden.accessToken == '') {
+      //     this.curGarden.securityCode = '';
+      //     this.gardenSvc.saveGarden(this.curGarden);
+      //   }
+      //   if (isValid) {
+      //     this.gardenSvc.getListHydroponic((cylinders) => {
+      //       this.cylinders = cylinders;
+      //       if (this.cylinders.length > 0) this.newPlantPosition = this.cylinders[0].id;
+      //     });
+      //   }
+      // });
     }, () => {
       setTimeout(() => this.getListCylinders(), 2000);
     });
@@ -176,10 +192,10 @@ export class HomePage {
       if (!this.isCameraView && !this.isShowDetails) {
         this.isShowQuickView = false;
         // this.blctl.disconnect();
-        this.onDeselectPlant();
       }
       this.isCameraView = false;
       this.isShowDetails = false;
+      this.onDeselectPlant();
     }
     this.isShowCreatePlantPopup = false;
   }

@@ -4,8 +4,8 @@ import { Injectable } from "@angular/core";
 
 @Injectable()
 export class WebsocketHandle extends ConnectMethod {
-  private addr: string;
-  private port: string;
+  private addr: string = '';
+  private port: string = '';
   private sock: WebSocket;
 
   constructor() {
@@ -13,9 +13,13 @@ export class WebsocketHandle extends ConnectMethod {
   }
 
   set host(host: string) {
-    if (host.split(":").length != 2) return;
-    this.addr = host.split(":")[0];
-    this.port = host.split(":")[1];
+    try {
+      if (host.split(":").length != 2) return;
+      this.addr = host.split(":")[0];
+      this.port = host.split(":")[1];
+    } catch (e) {
+
+    }
   }
   get host() { return `${this.addr}:${this.port}`; }
   get url() { return `ws://${this.host}` }
