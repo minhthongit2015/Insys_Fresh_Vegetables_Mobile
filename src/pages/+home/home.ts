@@ -76,9 +76,7 @@ export class HomePage {
               public alertCtrl: AlertController,
               public connectMgr: ConnectionManager,
               public gardenSvc: GardenServices) {
-    console.log(213);
     this.connectMgr.alertCtrl = alertCtrl;
-    //
   }
 
   ionViewDidLoad() {
@@ -95,7 +93,14 @@ export class HomePage {
   }
 
   public onInputSecurityCode() {
-    this.gardenSvc.checkSecurity(this.curGarden, () => {});
+    this.gardenSvc.checkSecurity(this.curGarden, (isValid) => {
+      if (isValid) {
+        this.gardenSvc.getListHydroponic((cylinders) => {
+          this.cylinders = cylinders;
+          if (this.cylinders.length > 0) this.newPlantPosition = this.cylinders[0].id;
+        });
+      }
+    });
   }
 
   public getListCylinders() {
@@ -179,12 +184,20 @@ export class HomePage {
   }
 
   public onRemovePlant() {
-    if (confirm(`Bạn có chắc muốn gỡ bỏ ${this.selectedPlant.alias} khỏi ${this.selectedCylinder.name}`)) {
-      this.gardenSvc.removePlant(this.selectedCylinder.id, this.selectedPlant.plantId, (cylinders) => {
-        this.cylinders = cylinders;
-        this.onBackToMain();
-      });
-    }
+    let alert = this.alertCtrl.create({
+      title: "Gỡ bỏ cây trồng!",
+      subTitle: `Bạn có chắc muốn gỡ bỏ cây trồng <b>${this.selectedPlant.alias}</b> ra khỏi <b>${this.selectedCylinder.name}</b>?`,
+      buttons: [
+        { text: "Giữ lại", role: 'cancel', handler: () => { } },
+        { text: "Gỡ bỏ", handler: () => {
+          this.gardenSvc.removePlant(this.selectedCylinder.id, this.selectedPlant.plantId, (cylinders) => {
+            this.cylinders = cylinders;
+            this.onBackToMain();
+          });
+        } }
+      ]
+    });
+    alert.present();
   }
 
   onBackToMain() {
