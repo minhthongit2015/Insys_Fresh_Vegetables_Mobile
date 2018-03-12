@@ -188,7 +188,7 @@ export class SettingsPage {
     this.isConfigWifiStage = false;
     this.isWifiConnectedStage = true;
 
-    this.curGarden.host = "192.168.1.148:4444";
+    this.curGarden.host = "192.168.137.4:4444";
     this.gardenSvc.setCurrentGarden(this.curGarden);
     this.connMgr.setup(this.curGarden);
 
