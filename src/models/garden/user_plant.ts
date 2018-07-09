@@ -1,14 +1,14 @@
 
 
-export class Plant {
+export class UserPlantModel {
   public alias?: string;
-  public plantType?: string;
-  public plantId?: string;
+  public type?: string;
+  public id?: string;
   public plantingDate?: string;
   public harvestTime?: number;
+  public location?: string;
 
-
-  get _plantingDate() : Date {
+  get _plantingDate() : Date { // d/m/yyyy
     if (!this.plantingDate) return null;
     let plantingDate = this.plantingDate.split("/").reverse();
     return new Date(+plantingDate[0], +plantingDate[1]-1, +plantingDate[2]);
@@ -29,14 +29,20 @@ export class Plant {
   }
   get progress() {
     if (!this.harvestTime) return 50;
-    return this.dayPass/this.harvestTime*100;
+    let progress = this.dayPass/this.harvestTime*100;
+    return progress < 0 ? 0 : (progress > 100 ? 100 : progress);
   }
 
-  constructor(alias: string, plantType: string, plantId: string, plantingDate: string, harvestTime: number) {
-    this.alias = alias;
-    this.plantType = plantType;
-    this.plantId = plantId;
-    this.plantingDate = plantingDate;
-    this.harvestTime = harvestTime;
+  constructor(dict: any) {
+    this.id = dict.plant_id;
+    this.update(dict);
+  }
+
+  public update(newPlant) {
+    this.alias = newPlant.alias;
+    this.type = newPlant.plant_type;
+    this.plantingDate = newPlant.planting_date;
+    this.harvestTime = newPlant.harvest_time;
+    this.location = newPlant.location;
   }
 }

@@ -30,9 +30,9 @@ export class GardenServices {
   }
 
   public discover() {
-    this.connMgr.blsctl.discover((rs) => {
-      debugger
-    })
+    // this.connMgr.blsctl.discover((rs) => {
+    //   debugger
+    // })
   }
 
   public handshake(bladdr: string, callback) {
@@ -85,44 +85,46 @@ export class GardenServices {
    * - Nhận danh sách trụ + danh sách cây trên trụ.
    * @param garden chứa thông tin ``địa chỉ bluetooth`` hoặc ``ipv4`` của raspi
    */
-  public getListHydroponic(onresult, onerror=null) {
-    this.gardenSync.getListHydroponic(onresult, onerror)
-  }
-
-  public getChartRecords(cylinderId: string, onresult) {
-    this.gardenSync.getChartRecords(cylinderId, onresult);
+  public getGardenInfo(onresult, onerror=null) {
+    this.connMgr.send([2,1,1], '', (data) : any => {
+      onresult(JSON.parse(data));
+    }, onerror);
   }
 
   /**
    * [Keep Update Section]
    */
-  public keepInfoUpdate(cylinderId, onresult) {
-    if (this.keepUpdateHandle) this.keepUpdateHandle.stop();
-    this.keepUpdateHandle = new ScheduleControler(() => {
-      this.gardenSync.updateCylinderInfo(cylinderId, onresult);
-    }, 5);
-    this.keepUpdateHandle.start();
+  public keepInfoUpdate(stationId, onresult) {
+    this.connMgr.send([2,2,1], stationId, (response) : any => {
+      onresult(JSON.parse(response));
+    }, () => this.keepInfoUpdate(stationId, onresult));
   }
   public unkeepInfoUpdate() {
     if (this.keepUpdateHandle) this.keepUpdateHandle.stop();
+  }
+
+  public getChartRecords(cylinderId: string, onresult) {
+    this.connMgr.send([2,2,2], cylinderId, (response) : any => {
+      onresult(JSON.parse(response));
+    });
   }
 
   public createNewPlant(cylinderId: string, plantType: string, plantingDate: string, alias: string, onresponse) {
     plantingDate = plantingDate.split("-").reverse().join("/");
     let packagez = [cylinderId, plantType, plantingDate, alias];
     this.connMgr.send([4,1], JSON.stringify(packagez), (data): any => {
-      onresponse(this.gardenSync.parseListCylinders(data));
+      // onresponse(this.gardenSync.parseGardenInfo(data));
     });
   }
   public removePlant(cylinderId, plantId, onresponse) {
     let packagez = [cylinderId, plantId];
     this.connMgr.send([4,2], JSON.stringify(packagez), (data): any => {
-      onresponse(this.gardenSync.parseListCylinders(data));
+      // onresponse(this.gardenSync.parseGardenInfo(data));
     });
   }
 
-  public sendUserCommand(cylinderId: string, equipment: string, state: any, callback=null) {
-    this.gardenSync.sendUserCommand(cylinderId, equipment, state, callback);
+  public sendUserCommand(cylinderId: string, equipment_role: string, state: any, callback=null) {
+    this.gardenSync.sendUserCommand(cylinderId, equipment_role, state, callback);
   }
 
 }

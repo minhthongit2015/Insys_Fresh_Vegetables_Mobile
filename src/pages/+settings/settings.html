@@ -11,7 +11,6 @@
           <label class="label-info">{{ curGarden?.name }}</label>
           <div class="table-sky">
             <table>
-              <tr><td><i class="fa fa-bluetooth"></i> Bluetooth</td><td>{{ curGarden?.bluetooth_addr }}</td></tr>
               <tr><td><i class="fa fa-wifi"></i> Wifi</td><td>{{ curGarden?.host || "Chưa được thiết đặt" }}</td></tr>
               <tr (click)="onSecurityCode()"><td><i class="fa fa-lock"></i> Mã bảo vệ</td><td><span>{{ curGarden?.securityCode ? "* * * * * * * * *" : "- - - - - - - - -" }}</span></td></tr>
             </table>
@@ -37,21 +36,9 @@
           <label class="label-info"><i class="fa fa-bluetooth"></i>Tìm kiếm kết nối tới vườn</label>
           <div class="list-avail">
             <div class="list-body">
-              <label>
-                <input type="radio" name="garden" value="1" [(ngModel)]="selectedGarden">
-                <span>>> [Vườn 4D5F]</span>
-              </label>
-              <label>
-                <input type="radio" name="garden" value="2" [(ngModel)]="selectedGarden">
-                <span>Iphone X</span>
-              </label>
-              <label>
-                <input type="radio" name="garden" value="3" [(ngModel)]="selectedGarden">
-                <span>Samsung Galaxy</span>
-              </label>
-              <label>
-                <input type="radio" name="garden" value="4" [(ngModel)]="selectedGarden">
-                <span>Oppo</span>
+              <label *ngFor="let garden of gardenList">
+                <input type="radio" name="garden" value="{{garden.ssid}}" [(ngModel)]="selectedGarden">
+                <span>{{garden.ssid}}</span>
               </label>
             </div>
             <div class="list-foot clickable" (click)="onConnectToGarden()">Kết nối</div>

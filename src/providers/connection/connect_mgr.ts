@@ -24,21 +24,20 @@ export class ConnectionManager {
   public security: Security;
   public gardenSrv: GardenServices;
   public bindingGarden: Garden;
-  
-  private _default_cmd = 255;
+  public pkgcfg: any;
 
-  get connecting() { return this.ws.connecting || this.blsctl.connecting; }
-  get connected() { return this.ws.connected || this.blsctl.connected; }
+  get connecting() { return this.ws.connecting }
+  get connected() { return this.ws.connected }
 
-  constructor(public blsctl: BluetoothCtl, public ws: WebsocketHandle) {
+  constructor(public ws: WebsocketHandle) {
     this.listener_mapping = { "0|255|255": (data): any => { } };
     this.security = new Security();
+    this.pkgcfg = {start: '\xfd', delim: '\xfe', end: '\xff', def: '\xf4'}
   }
 
   public setup(garden: Garden) {
     if (!garden) return
     this.bindingGarden = garden;
-    this.blsctl.setup(this.bindingGarden.bluetooth_addr, (response) => this.onResponse(response));
     this.ws.setup(this.bindingGarden.host, (response) => this.onResponse(response));
   }
 
@@ -48,10 +47,10 @@ export class ConnectionManager {
 
   public send(cmds, data, onsuccess: (data) => { }, onfailed=null) {
     if (!cmds.length) cmds = [cmds];
-    if (cmds.length == 1) cmds.push(this._default_cmd);
-    if (cmds.length == 2) cmds.push(this._default_cmd);
+    if (cmds.length == 1) cmds.push(this.pkgcfg.def);
+    if (cmds.length == 2) cmds.push(this.pkgcfg.def);
     let header = String.fromCharCode(...cmds);
-    let packagez = `${this.bindingGarden.accessToken||this.bindingGarden.securityCode}\xfe${header}\xfe${data}\x00\x00`;
+    let packagez = `${this.pkgcfg.start}${this.bindingGarden.accessToken||this.bindingGarden.securityCode}${this.pkgcfg.delim}${header}${this.pkgcfg.delim}${data}${this.pkgcfg.end}`;
 
     if (onsuccess) this.listener_mapping[header] = onsuccess;
 
@@ -60,17 +59,7 @@ export class ConnectionManager {
     } else {                 // else try to reconnect via LAN
       this.ws.connect(() => {
         this.ws.send(packagez);
-      }, () => {             // If LAN is not available then try send via bluetooth
-        if (this.blsctl.connected) {  // If the bluetooth connection is already connected then send via bluetooth
-          this.blsctl.send(packagez);
-        } else {             // If  bluetooth is not connected now, then try connect again and send the package
-          this.blsctl.connect(() => {
-            this.blsctl.send(packagez);
-          }, () => {
-            if (onfailed) onfailed();
-          });
-        }
-      })
+      }, onfailed);
     }
   }
 
@@ -79,11 +68,7 @@ export class ConnectionManager {
     if (this.connected) {
       onsuccess();
     } else {
-      this.ws.connect(onsuccess, () => {
-        if (!this.blsctl.connected) {
-          this.blsctl.connect(onsuccess, onfailed);
-        }
-      });
+      this.ws.connect(onsuccess, onfailed);
     } 
   }
 
@@ -104,10 +89,12 @@ export class ConnectionManager {
 
   public responseResolve(response: string) {
     let pack, rest, header, data, cmd, sub1, sub2;
-    pack = response.substr(0, response.indexOf("\x00\x00"));
-    rest = response.substr(response.indexOf("\x00\x00")+2);
+    let iEnd = response.indexOf(this.pkgcfg.end);
+    pack = response.substr(1, iEnd-1);
+    rest = response.substr(iEnd + this.pkgcfg.end.length);
 
-    pack = pack.split('\xfe');
+    // Header_D_Data
+    pack = pack.split(this.pkgcfg.delim);
     header = pack[0];
     data = pack[1];
 

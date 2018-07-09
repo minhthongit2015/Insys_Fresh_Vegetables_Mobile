@@ -5,7 +5,7 @@
       <div class="forecast"></div>
       <div class="nav show">
         <div class="nav-box">
-          <div class="selected-plant" [ngStyle]="{backgroundImage: 'url(../assets/UI/vegetables/' + selectedPlant?.plantType + '.svg)'}" [ngClass]="{show: isShowQuickView}"></div>
+          <div class="selected-plant" [ngStyle]="{backgroundImage: 'url(../assets/UI/vegetables/' + selectedPlant?.type + '.svg)'}" [ngClass]="{show: isShowQuickView}"></div>
         </div>
         <i class="nav-bridge" [ngClass]="{show: isShowDetails||isCameraView}"></i>
         <div class="nav-box">
@@ -21,24 +21,25 @@
 
     <!-- BODY -->
     <section id="body" (click)="onClickOut($event)">
-      <!-- List Plants -->
+
+      <!-- <<< Danh sách trạm và cây trồng mỗi trạm >>> -->
       <div class="cylinders-wrapper" *ngIf="!isCameraView && !isShowDetails">
-        <div class="cylinder" *ngFor="let cylinder of cylinders">
-          <label class="cylinder-name">{{ cylinder.name }}</label>
-          <div class="plant clickable" *ngFor="let plant of cylinder.plants" title="{{ plant.alias }}"
-            (click)="onViewPlant(plant, cylinder)">
-            <div class="plant-icon" [ngStyle]="{backgroundImage: 'url(../assets/UI/vegetables/' + plant.plantType + '.svg)'}"></div>
+        <div class="cylinder" *ngFor="let station of stations">
+          <label class="cylinder-name">{{ station.name }}</label>
+          <div class="plant clickable" *ngFor="let plant of station.plants" title="{{ plant.alias }}"
+            (click)="onViewPlant(plant, station)">
+            <div class="plant-icon" [ngStyle]="{backgroundImage: 'url(../assets/UI/vegetables/' + plant.type + '.svg)'}"></div>
           </div>
-          <div class="plant"></div>
-          <div class="plant"></div>
         </div>
       </div>
+
+      <!-- Bảng thông báo vườn được bảo vệ -->
       <div class="garden-protected" *ngIf="connectMgr?.authorized === false">
         <div class="garder-protected-info">Vườn đã được bảo vệ. Vui lòng nhập mã bảo vệ để kết nối đến vườn.</div>
         <div class="btn-authorize"><div (click)="onInputSecurityCode()"><i class="fa fa-unlock"></i> Nhập Mã Bảo Vệ</div></div>
       </div>
 
-      <!-- Create Plant Panel -->
+      <!-- Bảng tạo cây trồng mới -->
       <div class="newplant-popup" [ngClass]="{show: isShowCreatePlantPopup}">
         <div class="newplant-header">Cây Trồng Mới</div>
         <div class="newplant-body">
@@ -51,7 +52,7 @@
               <td><label class="input-label" for="newplant-position">Vị trí:</label></td>
               <td>
                 <ion-select id="newplant-position" [(ngModel)]="newPlantPosition" okText="OK" cancelText="Mặc định">
-                  <ion-option *ngFor="let cylinder of cylinders" value="{{ cylinder.id }}">{{ cylinder.name }}</ion-option>
+                  <ion-option *ngFor="let station of stations" value="{{ station.id }}">{{ station.name }}</ion-option>
                 </ion-select>
               </td>
             </tr>
@@ -81,13 +82,13 @@
         </div>
       </div>
 
-      <!-- Quick View Panel -->
+      <!-- Bảng xem chi tiết cây trồng -->
       <article id="quickview-panel" [ngClass]="{show: isShowQuickView, expand: isShowDetails||isCameraView}">
         <div class="quickview-panel-inner">
           <!-- Nav Panel -->
           <div class="selected-plant-nav">
             <div class="selected-plant-detail clickable" (click)="onViewDetailPlant(selectedPlant)" [ngClass]="{show: isShowDetails}"></div>
-            <div class="selected-plant-icon clickable"[ngStyle]="{backgroundImage: 'url(../assets/UI/vegetables/' + selectedPlant?.plantType + '.svg)'}" (click)="onViewDetailPlant(selectedPlant)">
+            <div class="selected-plant-icon clickable"[ngStyle]="{backgroundImage: 'url(../assets/UI/vegetables/' + selectedPlant?.type + '.svg)'}" (click)="onViewDetailPlant(selectedPlant)">
               <div class="connection-light clickable" [ngClass]="{connecting: connectMgr.connecting, online: connectMgr.connected}"></div>
             </div>
             <div class="selected-plant-camera clickable" (click)="onViewCamera(selectedPlant)"></div>
@@ -102,36 +103,42 @@
                 <div class="plant-details-label">Chế độ hoạt động</div>
                 <div class="plant-details-tab">
                   <div class="plant-details-head">
-                    <div class="plant-btn-label clickable default" [ngClass]="{checked: selectedCylinder?.equipmentSet?.automation}" (click)="onUserSet($event, 'automation', true)">Tự động</div>
-                    <div class="plant-btn-label clickable default" [ngClass]="{checked: !selectedCylinder?.equipmentSet?.automation}" (click)="onUserSet($event, 'automation', false)">Thủ công</div>
+                    <div class="plant-btn-label clickable default" [ngClass]="{checked: selectedStation?.automation_mode}" (click)="onUserSet($event, 'automation_mode', true)">Tự động</div>
+                    <div class="plant-btn-label clickable default" [ngClass]="{checked: !selectedStation?.automation_mode}" (click)="onUserSet($event, 'automation_mode', false)">Thủ công</div>
                   </div>
 
                   <!-- Equipment Set > Action devices -->
-                  <div class="plant-details-body" [ngClass]="{lock: selectedCylinder?.equipmentSet?.automation}">
+                  <div class="plant-details-body" [ngClass]="{lock: selectedStation?.automation_mode}">
                     <table class="plant-btn-hidden-group show">
                       <tr>
                         <td>Tưới Nước + Dinh dưỡng</td>
                         <td><label class="btn-switch">
-                            <input type="checkbox" [(ngModel)]="selectedCylinder.equipmentSet.pump" (click)="onUserSet($event, 'pump')">
+                            <input type="checkbox" [(ngModel)]="selectedStation.pump" (click)="onUserSet($event, 'pump')">
                             <div class="btn-slider"></div></label></td>
                       </tr>
                       <tr>
-                        <td>Châm phân (ppm: {{selectedCylinder?.equipmentSet?.sensors?.ppm}})</td>
+                        <td>Châm phân (ppm: {{selectedStation?.ppm}})</td>
                         <td>
                           <label class="btn-switch">
-                            <input type="checkbox" [(ngModel)]="selectedCylinder.equipmentSet.nutrient" (click)="onUserSet($event, 'nutrient')">
+                            <input type="checkbox" [(ngModel)]="selectedStation.nutri" (click)="onUserSet($event, 'nutri')">
                             <div class="btn-slider"></div>
                           </label>
                         </td>
                       </tr>
                       <tr>
-                        <td>Ánh sáng ({{selectedCylinder?.equipmentSet?.sensors?.light}} lux)</td>
+                        <td>Ánh sáng ({{selectedStation?.light}} lux)</td>
                         <td>
                           <label class="btn-switch">
-                            <input type="checkbox" [(ngModel)]="selectedCylinder.equipmentSet.light" (click)="onUserSet($event, 'light')">
+                            <input type="checkbox" [(ngModel)]="selectedStation.led" (click)="onUserSet($event, 'led')">
                             <div class="btn-slider"></div>
                           </label>
                         </td>
+                      </tr>
+                      <tr>
+                        <td>Phun sương làm mát ({{selectedStation?.temperature}}ºC)</td>
+                        <td><label class="btn-switch">
+                            <input type="checkbox" [(ngModel)]="selectedStation.misting" (click)="onUserSet($event, 'misting')">
+                            <div class="btn-slider"></div></label></td>
                       </tr>
                     </table>
                   </div>
@@ -146,26 +153,26 @@
                     <tr>
                       <td>Vị trí</td>
                       <td>
-                        <ion-select id="newplant-position" [(ngModel)]="selectedCylinder.name" okText="OK" cancelText="Mặc định">
-                          <ion-option *ngFor="let cylinder of cylinders" value="{{ cylinder.name }}">{{ cylinder.name }}</ion-option>
+                        <ion-select id="newplant-position" [(ngModel)]="selectedStation.name" okText="OK" cancelText="Mặc định">
+                          <ion-option *ngFor="let station of stations" value="{{ station.name }}">{{ station.name }}</ion-option>
                         </ion-select>
                       </td>
                     </tr>
                     <tr>
                       <td>Nhiệt độ / Độ ẩm</td>
-                      <td>{{selectedCylinder?.equipmentSet?.sensors?.temperature}}ºC / {{selectedCylinder?.equipmentSet?.sensors?.humidity}}%</td>
+                      <td>{{selectedStation?.temperature}}ºC / {{selectedStation?.humidity}}%</td>
                     </tr>
                     <tr>
                       <td>Dinh dưỡng</td>
-                      <td>{{selectedCylinder?.equipmentSet?.sensors?.ppm}} ppm</td>
+                      <td>{{selectedStation?.ppm}} ppm</td>
                     </tr>
                     <tr>
                       <td>Ánh sáng</td>
-                      <td>{{selectedCylinder?.equipmentSet?.sensors?.light}} lux</td>
+                      <td>{{selectedStation?.light}} lux</td>
                     </tr>
                     <tr>
                       <td>pH</td>
-                      <td>{{selectedCylinder?.equipmentSet?.sensors?.pH}}</td>
+                      <td>{{selectedStation?.pH}}</td>
                     </tr>
                   </table>
                 </div>

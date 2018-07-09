@@ -7,6 +7,8 @@ import { Garden } from '../../models/garden/garden';
 
 // import { User } from '../../providers/providers';
 
+import { Hotspot, HotspotNetwork } from '@ionic-native/hotspot';
+
 @IonicPage()
 @Component({
   selector: 'page-settings',
@@ -16,15 +18,12 @@ export class SettingsPage {
   /// View state properties
   public isNoneConnectStage: boolean = true;
   public isGettingStartedStage: boolean = false;
-  public isChooseBluetoothStage: boolean = false;
-  public isBluetoothConnectedStage: boolean = false;
   public isConfigWifiStage: boolean = false;
   public isWifiConnectedStage: boolean = false;
   public isExistGarden: boolean = false;
   public isAddingNewConnectionMethod: boolean = false;
   public get isInConnectScript() {
-    return this.isGettingStartedStage || this.isChooseBluetoothStage || this.isBluetoothConnectedStage
-      || this.isConfigWifiStage || this.isWifiConnectedStage;
+    return this.isGettingStartedStage || this.isConfigWifiStage || this.isWifiConnectedStage;
   }
 
   /// View component
@@ -46,6 +45,23 @@ export class SettingsPage {
   }
 
   public listGardens: Garden[];
+  public gardenList = [
+    {
+      ssid: "iPhone X"
+    },
+    {
+      ssid: "AP 01"
+    },
+    {
+      ssid: "Garden 1a2b"
+    },
+    {
+      ssid: "Smart Watch ad4f"
+    },
+    {
+      ssid: "My warming house"
+    }
+  ];
 
   loader: any;
   constructor(public navCtrl: NavController,
@@ -53,7 +69,8 @@ export class SettingsPage {
     public loadingCtrl: LoadingController,
     public alertCtrl: AlertController,
     public gardenSvc: GardenServices,
-    public connMgr: ConnectionManager
+    public connMgr: ConnectionManager,
+    private hotspot: Hotspot
   ) {
     this.connMgr.alertCtrl = alertCtrl;
     this.translateService.get('LOGIN_ERROR').subscribe((value) => {
@@ -76,6 +93,14 @@ export class SettingsPage {
   ionViewDidLoad() {
     this.gardenSvc.setup(this.connMgr);
     this.gardenSvc.checkSecurity(this.curGarden, () => {});
+    this.searchingForGardens();
+  }
+  data : any;
+  searchingForGardens() {
+    // this.hotspot.scanWifi().then((networks: Array<HotspotNetwork>) => {
+    //   this.data=networks;
+    //   console.log(".........hotspot..........",JSON.stringify(networks));
+    // });
   }
 
   // Attempt to login in through our User service
@@ -86,6 +111,7 @@ export class SettingsPage {
     });
     this.loader.present();
   }
+
   public onSecurityCode() {
     this.curGarden.accessToken = '';
     this.gardenSvc.checkSecurity(this.curGarden, (result) => {
@@ -100,6 +126,7 @@ export class SettingsPage {
       }
     });
   }
+
   public onSetSecurityCode() {
     let alert = this.alertCtrl.create({
       title: 'Thiết đặt mã bảo vệ cho vườn',
@@ -124,6 +151,7 @@ export class SettingsPage {
     });
     alert.present();
   }
+
   public onChangeSecurityCode() {
     let alert = this.alertCtrl.create({
       title: 'Đổi mã bảo vệ',
@@ -163,10 +191,10 @@ export class SettingsPage {
 
   public onConnectToGarden() {
     this.isGettingStartedStage = false;
-    this.isBluetoothConnectedStage = true;
+    this.onContinueToConfigWifi();
 
-    this.curGarden = new Garden("Vườn Khí Canh 0" + Math.floor(Math.random()*10), "B8:27:EB:73:2A:5D");
-    this.gardenSvc.setCurrentGarden(this.curGarden);
+    // this.curGarden = new Garden("Vườn Khí Canh 0" + Math.floor(Math.random()*10));
+    // this.gardenSvc.setCurrentGarden(this.curGarden);
     // this.gardenSvc.handshake(this.selectedGarden, () => {
     //   debugger
     //   alert(`
@@ -176,9 +204,7 @@ export class SettingsPage {
     // });
   }
 
-  public onContinueToConfigWifi(isAddToExist) {
-    this.isAddingNewConnectionMethod = isAddToExist;
-    this.isBluetoothConnectedStage = false;
+  public onContinueToConfigWifi() {
     this.isConfigWifiStage = true;
   }
 
@@ -188,7 +214,7 @@ export class SettingsPage {
     this.isConfigWifiStage = false;
     this.isWifiConnectedStage = true;
 
-    this.curGarden.host = "192.168.137.4:4444";
+    this.curGarden.host = "192.168.1.31:4444";
     this.gardenSvc.setCurrentGarden(this.curGarden);
     this.connMgr.setup(this.curGarden);
 

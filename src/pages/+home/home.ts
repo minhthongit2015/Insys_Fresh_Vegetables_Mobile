@@ -14,11 +14,11 @@ import 'rxjs/add/observable/interval';
 // import { HomeServices } from './home.service';
 import { ConnectionManager } from '../../providers/connection/connect_mgr';
 import { GardenServices } from '../../providers/garden/garden.services';
-import { HydroponicCylinder } from '../../models/garden/hydroponic';
 import { Garden } from '../../models/garden/garden';
-import { Plant } from '../../models/garden/plant';
 import { InSysChartJS } from '../../modules/insyschartjs/insyschartjs';
 import { listPlantLib, PlantLib } from '../../models/garden/plant_lib';
+import { StationModel } from '../../models/garden/station';
+import { UserPlantModel } from '../../models/garden/user_plant';
 
 
 
@@ -39,7 +39,10 @@ export class HomePage {
   public clock: any;
   public clockTime = new Date();
   @ViewChild('insyschart') chart;
-  public cylinders: HydroponicCylinder[];
+
+  public get stations() : StationModel[] {
+    return this.curGarden ? this.curGarden.stations : null;
+  }
 
   // model binding with create new plant
   public listPlantLib: PlantLib[] = listPlantLib;
@@ -64,8 +67,8 @@ export class HomePage {
   public get newPlantType() { return this._newPlantType }
 
   // Model binding in Quick View Panel
-  public selectedCylinder: HydroponicCylinder;
-  public selectedPlant: Plant;
+  public selectedStation: StationModel;
+  public selectedPlant: UserPlantModel;
   public ytbchannel: SafeResourceUrl;
 
   @ViewChild('insyschart') envsChartEle: any;
@@ -80,7 +83,7 @@ export class HomePage {
   }
 
   ionViewDidLoad() {
-    this.curGarden = this.gardenSvc.getCurrentGarden();
+    this.curGarden = new Garden(this.gardenSvc.getCurrentGarden());
     
     this.clock = Observable.interval(1000).map(() => this.clockTime.setTime(this.clockTime.getTime() + 500));
 
@@ -89,25 +92,25 @@ export class HomePage {
     this.connectMgr.setup(this.curGarden);
     this.gardenSvc.setup(this.connectMgr);
 
-    this.getListCylinders();
+    this.getGardenInfo();
   }
 
   public onInputSecurityCode() {
     this.gardenSvc.checkSecurity(this.curGarden, (isValid) => {
       if (isValid) {
-        this.gardenSvc.getListHydroponic((cylinders) => {
-          this.cylinders = cylinders;
-          if (this.cylinders.length > 0) this.newPlantPosition = this.cylinders[0].id;
+        this.gardenSvc.getGardenInfo((gardenInfo) => {
+          this.curGarden.attachGardenInfo(gardenInfo);
+          if (this.stations.length > 0) this.newPlantPosition = this.stations[0].id;
         });
       }
     });
   }
 
-  public getListCylinders() {
+  public getGardenInfo() {
     this.connectMgr.connect(() => {
-      this.gardenSvc.getListHydroponic((cylinders) => {
-        this.cylinders = cylinders;
-        if (this.cylinders.length > 0) this.newPlantPosition = this.cylinders[0].id;
+      this.gardenSvc.getGardenInfo((gardenInfo) => {
+        this.curGarden.attachGardenInfo(gardenInfo);
+        if (this.stations.length > 0) this.newPlantPosition = this.stations[0].id;
       });
       // this.gardenSvc.checkSecurity(this.curGarden, (isValid) => {
       //   if (this.curGarden.accessToken == '') {
@@ -122,13 +125,13 @@ export class HomePage {
       //   }
       // });
     }, () => {
-      setTimeout(() => this.getListCylinders(), 2000);
+      setTimeout(() => this.getGardenInfo(), 2000);
     });
   }
 
-  onViewPlant(plant, cylinder) {
+  onViewPlant(plant, station) {
     this.isShowQuickView = true;
-    this.selectedCylinder = cylinder;
+    this.selectedStation = station;
     this.selectedPlant = plant;
   }
 
@@ -137,18 +140,18 @@ export class HomePage {
     this.isCameraView = false;
     
     this.envsChart = new InSysChartJS(this.envsChartEle)
-    this.gardenSvc.getChartRecords(this.selectedCylinder.id, (records: any[]) => {
-      this.envsChart.attachRecords(records);
+    this.gardenSvc.keepInfoUpdate(this.selectedStation.id, (info) => {
+      if (info.id != this.selectedStation.id) return;
+      this.selectedStation.update(info);
     });
-    this.gardenSvc.keepInfoUpdate(this.selectedCylinder.id, (info) => {
-      if (info.id != this.selectedCylinder.id) return;
-      this.selectedCylinder.reload(info);
-    })
+    // this.gardenSvc.getChartRecords(this.selectedStation.id, (records: any[]) => {
+    //   this.envsChart.attachRecords(records);
+    // });
   }
 
   onUserSet(e, equipment, state) {
-    this.gardenSvc.sendUserCommand(this.selectedCylinder.id, equipment, state!=null ? state : e.target.checked, () => {
-      this.selectedCylinder.equipmentSet[equipment] = state!=null ? state : e.target.checked;
+    this.gardenSvc.sendUserCommand(this.selectedStation.id, equipment, state!=null ? state : e.target.checked, () => {
+      this.selectedStation[equipment] = state != null ? state : e.target.checked;
     });
   }
 
@@ -178,7 +181,7 @@ export class HomePage {
     this.newPlantName;
     let alias = this.newPlantAlias || this.newPlantName;
     this.gardenSvc.createNewPlant(this.newPlantPosition, this.newPlantType, this.newPlantPlantingDate, alias, (cylinders) => {
-      this.cylinders = cylinders;
+      // this.cylinders = cylinders;
       this.onBackToMain();
     });
   }
@@ -186,12 +189,12 @@ export class HomePage {
   public onRemovePlant() {
     let alert = this.alertCtrl.create({
       title: "Gỡ bỏ cây trồng!",
-      subTitle: `Bạn có chắc muốn gỡ bỏ cây trồng <b>${this.selectedPlant.alias}</b> ra khỏi <b>${this.selectedCylinder.name}</b>?`,
+      subTitle: `Bạn có chắc muốn gỡ bỏ cây trồng <b>${this.selectedPlant.alias}</b> ra khỏi <b>${this.selectedStation.name}</b>?`,
       buttons: [
         { text: "Giữ lại", role: 'cancel', handler: () => { } },
         { text: "Gỡ bỏ", handler: () => {
-          this.gardenSvc.removePlant(this.selectedCylinder.id, this.selectedPlant.plantId, (cylinders) => {
-            this.cylinders = cylinders;
+          this.gardenSvc.removePlant(this.selectedStation.id, this.selectedPlant.id, (cylinders) => {
+            // this.cylinders = cylinders;
             this.onBackToMain();
           });
         } }
