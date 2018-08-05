@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { WebsocketHandle } from "./websocket";
-import { BluetoothCtl } from "./bluetoothctl";
+// import { BluetoothCtl } from "./bluetoothctl";
 import { Garden } from "../../models/garden/garden";
 import { Security } from "./security";
 import { AlertController } from "ionic-angular";

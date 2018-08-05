@@ -1,8 +1,8 @@
-import { Observable } from "rxjs/Observable";
-import { Subscription } from "rxjs/Subscription";
+// import { Observable } from "rxjs/Observable";
+// import { Subscription } from "rxjs/Subscription";
 
 export class ScheduleControler {
-  private ob: Observable<any>;
+  // private ob: Observable<any>;
   public target: any;
   public timeout: number;
   private handle: number;

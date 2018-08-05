@@ -4,12 +4,12 @@ import { IonicPageModule } from 'ionic-angular';
 
 import { HomePage } from './home';
 // import { HomeServices } from './home.service';
-import { ConnectionManager } from '../../providers/connection/connect_mgr';
+import { ConnectionManager } from '../../providers/connection/connect_mgr.1';
 import { BluetoothCtl } from '../../providers/connection/bluetoothctl';
 import { WebsocketHandle } from '../../providers/connection/websocket';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { GardenServices } from '../../providers/providers';
-import { GardenSync } from '../../providers/connection/sync/garden_sync';
+// import { GardenSync } from '../../providers/connection/sync/garden_sync';
 
 @NgModule({
   declarations: [
@@ -25,7 +25,8 @@ import { GardenSync } from '../../providers/connection/sync/garden_sync';
   providers: [
     // HomeServices,
     ConnectionManager, BluetoothCtl, BluetoothSerial, WebsocketHandle,
-    GardenServices, GardenSync
+    GardenServices,
+    // GardenSync
   ]
 })
 export class HomePageModule { }

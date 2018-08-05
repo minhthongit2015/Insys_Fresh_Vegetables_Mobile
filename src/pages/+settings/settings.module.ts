@@ -7,7 +7,6 @@ import { GardenServices } from '../../providers/garden/garden.services';
 import { ConnectionManager } from '../../providers/connection/connect_mgr';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { BluetoothCtl } from '../../providers/providers';
-import { GardenSync } from '../../providers/connection/sync/garden_sync';
 import { WebsocketHandle } from '../../providers/connection/websocket';
 
 @NgModule({
@@ -21,6 +20,6 @@ import { WebsocketHandle } from '../../providers/connection/websocket';
   exports: [
     SettingsPage
   ],
-  providers: [ GardenServices, GardenSync, ConnectionManager, BluetoothSerial, BluetoothCtl, WebsocketHandle, AlertController ]
+  providers: [ GardenServices, ConnectionManager, BluetoothSerial, BluetoothCtl, WebsocketHandle, AlertController ]
 })
 export class SettingsPageModule { }

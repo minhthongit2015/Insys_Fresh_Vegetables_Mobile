@@ -7,9 +7,11 @@ export class WebsocketHandle extends ConnectMethod {
   private addr: string = '';
   private port: string = '';
   private sock: WebSocket;
+  public initialized: boolean;
 
   constructor() {
     super();
+    this.initialized = false;
   }
 
   set host(host: string) {
@@ -27,12 +29,13 @@ export class WebsocketHandle extends ConnectMethod {
   setup(destination, onPackages) {
     this.host = destination;
     this.onPackages = onPackages;
+    this.initialized = true;
   }
 
   connect(onsuccess=null, onfailed=null) {
     if (!this.addr) {
       this.connected = this.connecting = false;
-      onfailed();
+      if (onfailed) onfailed();
       return;
     }
     

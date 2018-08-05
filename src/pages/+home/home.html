@@ -89,7 +89,7 @@
           <div class="selected-plant-nav">
             <div class="selected-plant-detail clickable" (click)="onViewDetailPlant(selectedPlant)" [ngClass]="{show: isShowDetails}"></div>
             <div class="selected-plant-icon clickable"[ngStyle]="{backgroundImage: 'url(../assets/UI/vegetables/' + selectedPlant?.type + '.svg)'}" (click)="onViewDetailPlant(selectedPlant)">
-              <div class="connection-light clickable" [ngClass]="{connecting: connectMgr.connecting, online: connectMgr.connected}"></div>
+              <div class="connection-light clickable" [ngClass]="{connecting: gardenSocket.connecting, online: gardenSocket.open}"></div>
             </div>
             <div class="selected-plant-camera clickable" (click)="onViewCamera(selectedPlant)"></div>
           </div>
@@ -99,6 +99,16 @@
 
             <!-- Plant Detail Tab -->
             <div class="plant-details" [ngClass]="{show: isShowDetails}">
+
+              <div class="plant-details-group" *ngIf="isShowDetails">
+                <div class="plant-tips">
+                  <div class="plant-tips-head">Bạn có biết?</div>
+                  <div>Cải ngọt có chất aibumin, chất đường, vitamin B1, axít bốc hơi, axít pamic, coban, iốt. Rễ và lá có nhiều chất kiềm thúc đẩy sự tiêu hoá, thúc đẩy cơ thể tiếp thu aibumin bảo vệ gan, chống mỡ trong gan.</div>
+                  <div class="btn-more-tips">Tìm hiểu thêm</div>
+                </div>
+              </div>
+
+              <!-- Khung điều khiển các thiết bị bơm tưới... -->
               <div class="plant-details-group" *ngIf="isShowDetails">
                 <div class="plant-details-label">Chế độ hoạt động</div>
                 <div class="plant-details-tab">
@@ -145,7 +155,7 @@
                 </div>
               </div>
 
-              <!-- Enviroment -->
+              <!-- Khung thông tin điều kiện môi trường -->
               <div class="plant-details-group" *ngIf="isShowDetails">
                 <div class="plant-details-label">Môi trường sinh trưởng</div>
                 <div  class="plant-envs">

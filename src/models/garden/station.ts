@@ -1,5 +1,4 @@
 import { UserPlantModel } from "./user_plant";
-import { EquipmentModel } from "./equipment";
 
 
 export class StationModel {

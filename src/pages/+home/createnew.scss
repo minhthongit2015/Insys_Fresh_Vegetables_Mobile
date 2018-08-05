@@ -1,0 +1,101 @@
+
+@import "../../theme/variables";
+
+page-home {
+
+  .newplant-popup {
+    position: absolute;
+    border-radius: 7px;
+    border: 2px solid rgba(255, 255, 255, 0.77);
+    top: 10px;
+    left: 20px;
+    right: 20px;
+    bottom: 10px;
+    background: rgb(255, 255, 255);
+    background-clip: padding-box;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 10;
+    &.show { opacity: 1; visibility: visible; }
+    @if $effect == true { transition: all .3s ease-in-out; }
+
+    &::before {
+      content: "";
+      background: url('../assets/UI/background/'+$bg) center center/cover fixed no-repeat;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      filter: blur(14px);
+    }
+
+    .newplant-header {
+      font-size: 25px;
+      text-align: center;
+      color: #ffffff;
+      font-weight: bold;
+      border-bottom: 1px solid #fff;
+      padding: 4px 10px 4px;
+      margin-bottom: 10px;
+      background: rgb(219, 166, 96);
+    }
+    .newplant-body {
+      padding: 8px 10px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      height: calc(100% - 50px);
+
+      .list-plant-lib {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        margin: 4px 0;
+        overflow: auto;
+        flex-grow: 10;
+        box-shadow: inset 0 3px 35px #fff;
+        border-radius: 5px;
+        border: 1px solid #fff;
+
+        .plant-lib {
+          width: 70px;
+          margin: 4px 2px;
+          &:empty { max-height: 0; visibility: hidden; }
+
+          .plant-lib-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.34) center center/70% 70% no-repeat;
+            border-radius: 50%;
+          }
+          input:checked + .plant-lib-icon { border: 1px solid #fff; }
+          .plant-lib-label {
+            color: #fff;
+            text-align: center;
+          }
+        }
+      }
+
+      input, ion-select { width: 100%; max-width: 100%; font-size: 20px; }
+      input::-webkit-input-placeholder { color: #aaa; }
+      input.hidden { display: none; }
+      .create-plant-btn {
+        font-size: 25px;
+        text-align: center;
+        padding: 4px;
+        background: #e2aa47;
+        border-bottom: 4px solid #ae791c;
+        border-radius: 4px 4px 2px 2px;
+        margin-top: 5px;
+        &:active {
+          margin-top: 7px;
+          border-bottom-width: 2px;
+        }
+      }
+    }
+  }
+
+}

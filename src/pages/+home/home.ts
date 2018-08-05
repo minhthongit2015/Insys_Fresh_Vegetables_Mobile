@@ -12,14 +12,14 @@ import 'rxjs/add/observable/interval';
 /// ---
 
 // import { HomeServices } from './home.service';
-import { ConnectionManager } from '../../providers/connection/connect_mgr';
+import { ConnectionManager } from '../../providers/connection/connect_mgr.1';
 import { GardenServices } from '../../providers/garden/garden.services';
 import { Garden } from '../../models/garden/garden';
 import { InSysChartJS } from '../../modules/insyschartjs/insyschartjs';
 import { listPlantLib, PlantLib } from '../../models/garden/plant_lib';
 import { StationModel } from '../../models/garden/station';
 import { UserPlantModel } from '../../models/garden/user_plant';
-
+import { SmartGardenWebSocket } from '../../providers/connection/smwebsocket';
 
 
 @IonicPage()
@@ -36,6 +36,7 @@ export class HomePage {
 
   /// View component
   public curGarden: Garden;
+  public get gardenSocket() { return this.curGarden ? this.curGarden.serverSock : {} }
   public clock: any;
   public clockTime = new Date();
   @ViewChild('insyschart') chart;
@@ -89,44 +90,73 @@ export class HomePage {
 
     this.ytbchannel = this.sanitizer.bypassSecurityTrustResourceUrl("https://www.youtube.com/embed/Qmla9NLFBvU");
 
-    this.connectMgr.setup(this.curGarden);
-    this.gardenSvc.setup(this.connectMgr);
+    this.curGarden.serverSock = new SmartGardenWebSocket("localhost:4444");
+    this.curGarden.serverSock.setup(this.connectMgr);
+    this.gardenSvc.setup(this.connectMgr, this.curGarden.serverSock);
 
-    this.getGardenInfo();
+
+    /// Đăng ký xử lý các sự kiện
+    this.gardenSvc.keepRefreshGardenInfo((rs) => this.onGardenInfo(rs));
+    
+    // Đảm bảo ip raspi
+    this.refreshConnection();
+  }
+
+  refreshConnection() {
+    let portal = new WebSocket("ws://" + this.curGarden.portal);
+    portal.onmessage = (raspiInfo) => {
+      console.log(raspiInfo);
+      if (raspiInfo.data.includes(".244.")) {
+        this.curGarden.serverSock.setServer(raspiInfo.data.substr(0, -1));
+      }
+    };
+    // portal.onclose = () => this.refreshConnection();
+    portal.onerror = () => this.refreshConnection();
+    portal.onopen = () => {
+      portal.send("GetRaspi");
+    }
   }
 
   public onInputSecurityCode() {
     this.gardenSvc.checkSecurity(this.curGarden, (isValid) => {
       if (isValid) {
-        this.gardenSvc.getGardenInfo((gardenInfo) => {
-          this.curGarden.attachGardenInfo(gardenInfo);
-          if (this.stations.length > 0) this.newPlantPosition = this.stations[0].id;
-        });
+        // this.gardenSvc.getGardenInfo((gardenInfo) => {
+        //   this.curGarden.attachGardenInfo(gardenInfo);
+        //   if (this.stations.length > 0) this.newPlantPosition = this.stations[0].id;
+        // });
       }
     });
   }
 
-  public getGardenInfo() {
-    this.connectMgr.connect(() => {
-      this.gardenSvc.getGardenInfo((gardenInfo) => {
-        this.curGarden.attachGardenInfo(gardenInfo);
-        if (this.stations.length > 0) this.newPlantPosition = this.stations[0].id;
-      });
-      // this.gardenSvc.checkSecurity(this.curGarden, (isValid) => {
-      //   if (this.curGarden.accessToken == '') {
-      //     this.curGarden.securityCode = '';
-      //     this.gardenSvc.saveGarden(this.curGarden);
-      //   }
-      //   if (isValid) {
-      //     this.gardenSvc.getListHydroponic((cylinders) => {
-      //       this.cylinders = cylinders;
-      //       if (this.cylinders.length > 0) this.newPlantPosition = this.cylinders[0].id;
-      //     });
-      //   }
-      // });
-    }, () => {
-      setTimeout(() => this.getGardenInfo(), 2000);
-    });
+  public onGardenInfo(rs) {
+    switch (rs.code) {
+      case 200: // OK
+        this.curGarden.attachGardenInfo(rs.response);
+        if (this.stations.length > 0)
+          this.newPlantPosition = this.stations[0].id;
+        break;
+      case 300: // Request Error
+        break;
+      case 400: // Process Error
+        break;
+      case 500: // Server Error
+        break;
+    }
+  }
+
+  public onStationInfo(rs) {
+    switch (rs.code) {
+      case 200: // OK
+        if (rs.response.id != this.selectedStation.id) return;
+        this.selectedStation.update(rs.response);
+        break;
+      case 300: // Request Error
+        break;
+      case 400: // Process Error
+        break;
+      case 500: // Server Error
+        break;
+    }
   }
 
   onViewPlant(plant, station) {
@@ -139,20 +169,17 @@ export class HomePage {
     this.isShowDetails = !this.isShowDetails;
     this.isCameraView = false;
     
-    this.envsChart = new InSysChartJS(this.envsChartEle)
-    this.gardenSvc.keepInfoUpdate(this.selectedStation.id, (info) => {
-      if (info.id != this.selectedStation.id) return;
-      this.selectedStation.update(info);
-    });
-    // this.gardenSvc.getChartRecords(this.selectedStation.id, (records: any[]) => {
-    //   this.envsChart.attachRecords(records);
-    // });
+    this.envsChart = new InSysChartJS(this.envsChartEle);
+    this.gardenSvc.keepStationUpdate(this.selectedStation.id, (rs) => this.onStationInfo(rs));
+  }
+  onDeselectPlant() {
+    this.gardenSvc.unkeepStationUpdate();
   }
 
   onUserSet(e, equipment, state) {
-    this.gardenSvc.sendUserCommand(this.selectedStation.id, equipment, state!=null ? state : e.target.checked, () => {
-      this.selectedStation[equipment] = state != null ? state : e.target.checked;
-    });
+    // this.gardenSvc.sendUserCommand(this.selectedStation.id, equipment, state!=null ? state : e.target.checked, () => {
+    //   this.selectedStation[equipment] = state != null ? state : e.target.checked;
+    // });
   }
 
   onViewCamera(plant) {
@@ -180,10 +207,10 @@ export class HomePage {
     this.newPlantAlias;
     this.newPlantName;
     let alias = this.newPlantAlias || this.newPlantName;
-    this.gardenSvc.createNewPlant(this.newPlantPosition, this.newPlantType, this.newPlantPlantingDate, alias, (cylinders) => {
-      // this.cylinders = cylinders;
-      this.onBackToMain();
-    });
+    // this.gardenSvc.createNewPlant(this.newPlantPosition, this.newPlantType, this.newPlantPlantingDate, alias, (cylinders) => {
+    //   // this.cylinders = cylinders;
+    //   this.onBackToMain();
+    // });
   }
 
   public onRemovePlant() {
@@ -193,10 +220,10 @@ export class HomePage {
       buttons: [
         { text: "Giữ lại", role: 'cancel', handler: () => { } },
         { text: "Gỡ bỏ", handler: () => {
-          this.gardenSvc.removePlant(this.selectedStation.id, this.selectedPlant.id, (cylinders) => {
-            // this.cylinders = cylinders;
-            this.onBackToMain();
-          });
+          // this.gardenSvc.removePlant(this.selectedStation.id, this.selectedPlant.id, (cylinders) => {
+          //   // this.cylinders = cylinders;
+          //   this.onBackToMain();
+          // });
         } }
       ]
     });
@@ -215,9 +242,6 @@ export class HomePage {
     }
     this.isShowCreatePlantPopup = false;
   }
-  onDeselectPlant() {
-    this.gardenSvc.unkeepInfoUpdate();
-  }
 
   ionViewWillLeave() {
     this.onDeselectPlant();
@@ -230,5 +254,20 @@ export class HomePage {
   onNavigate(page, forward) {
     let pages = ["WelcomePage", "HomePage", "SettingsPage"];
     this.navCtrl.setRoot(pages[page-1], {}, {"animate": true, "direction": forward?"forward":"back"});
+  }
+
+  recheckSecurityCode() {
+    // this.gardenSvc.checkSecurity(this.curGarden, (isValid) => {
+    //   if (this.curGarden.accessToken == '') {
+    //     this.curGarden.securityCode = '';
+    //     this.gardenSvc.saveGarden(this.curGarden);
+    //   }
+    //   if (isValid) {
+    //     this.gardenSvc.getListHydroponic((cylinders) => {
+    //       this.cylinders = cylinders;
+    //       if (this.cylinders.length > 0) this.newPlantPosition = this.cylinders[0].id;
+    //     });
+    //   }
+    // });
   }
 }

@@ -1,0 +1,440 @@
+
+page-home {
+  #quickview-panel {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: url("../assets/UI/background/quickview-panel.svg") center 100%/100% no-repeat;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    visibility: hidden;
+    @if $effect == true { transition: all .3s ease-in-out; }
+    @if $light == true {
+      background-image: url("../assets/UI/background/quickview-panel-light.svg");
+    }
+
+    &.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    &.expand {
+      background-position: center 5px;
+      background-size: cover;
+      height: 100%;
+      @if $light == true {
+        background-image: url("../assets/UI/background/details-panel-light.svg");
+      }
+
+      .selected-plant-icon {
+        background: rgba(227, 237, 255, 0) center center/contain no-repeat;
+        margin-bottom: 8px !important;
+        .connection-light {
+          bottom: 5px !important;
+        }
+      }
+      .quickview-panel-body {
+        height: 70% !important;
+        overflow: auto !important;
+        flex-grow: 10 !important;
+      }
+    }
+    
+    * { pointer-events: initial; }
+
+    .quickview-panel-inner {
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+
+      * { pointer-events: initial; }
+
+      // Thanh điều hướng [Chi tiết, Mở rộng, Camera]
+      .selected-plant-nav {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: flex-end;
+        width: 100%;
+        height: 0;
+        padding-top: 30%;
+        position: relative;
+
+        .selected-plant-icon {
+          width: 24%;
+          height: 0;
+          padding-top: 24%;
+          margin: 0 26px 26px;
+          display: flex;
+          justify-content: center;
+          background: rgba(227, 237, 255, 0) center center/contain no-repeat;
+          @if $effect == true {
+            transition: all .3s ease-in-out;
+            filter: drop-shadow(0 0 15px #fff) drop-shadow(0 0 35px #fff);
+          }
+        }
+        .selected-plant-camera, .selected-plant-detail {
+          width: 24%;
+          height: 0;
+          padding-top: 17%;
+          background: url("../assets/UI/icon/camera.svg") center center/100% no-repeat
+        }
+        .selected-plant-detail {
+          background-image: url("../assets/UI/icon/notebook.svg");
+        }
+        .connection-light {
+          width: 20%;
+          height: 0;
+          padding-top: calc(20% - 2px);
+          border-radius: 50%;
+          background: #999;
+          border: 1px solid #fff;
+          position: absolute;
+          box-sizing: border-box;
+          bottom: 0;
+          &.connecting {
+            background: #ffc65e;
+          }
+          &.online {
+            background: #24be3d;
+          }
+        }
+      }
+
+      // Phần thân Panel
+      .quickview-panel-body {
+        width: 100%;
+        height: auto;
+        flex-grow: initial;
+
+        // Tab hiển thị thông tin chi tiết
+        .plant-details {
+          opacity: 0;
+          visibility: hidden;
+          max-height: 0;
+          overflow: hidden;
+          @if $effect == true {
+            transition: all .3s ease-in-out;
+          }
+
+          &.show {
+            opacity: 1;
+            visibility: visible;
+            max-height: 1000px;
+          }
+          .plant-details-group {
+            padding: 4px 10px;
+            font-size: 20px;
+            
+            .plant-details-label {
+              color: #fff;
+              background: rgba(0,2,21,.45);
+              padding: 4px 6px;
+            }
+            .plant-details-head  {
+              display: flex;
+              justify-content: space-evenly;
+
+              .plant-btn-label {
+                background: rgba(255,255,255,.5);
+                padding: 4px 6px;
+                width: 50%;
+                text-align: center;
+                color: #222;
+
+                &.checked {
+                  background: rgba(50, 215, 54, .45);
+                  color: #fff;
+                }
+                &.checked.special {
+                  background: rgba(30, 163, 244, .44);
+                }
+              }
+            }
+            .plant-details-body {
+              border: 1px solid rgba(50, 215, 54, 0.45);
+              padding: 5px;
+              background: rgba(255,255,255,.2);
+              position: relative;
+
+              &.lock * { pointer-events: none; }
+              &:after {
+                content: "";
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                background: rgba(0, 0, 0, 0.5) url(../assets/UI/icon/lock.png) center center/auto 70px no-repeat;
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+              }
+              &.lock:after {
+                opacity: 1;
+                visibility: visible;
+                @if $effect == true {
+                  transition: .3s all ease-in-out;
+                }
+              }
+
+              table.plant-btn-hidden-group {
+                width: 100%;
+                display: none;
+
+                &.show { display: table; }
+
+                tr {
+                  td {
+                    color: #dedede;
+                    vertical-align: middle;
+                    text-align: center;
+                    border-bottom: 1px solid #aaa;
+                  }
+                  td:first-child {
+                    text-align: left;
+                  }
+                  &:last-child > td {
+                    border-bottom: none;
+                  }
+
+                  .btn-switch {
+                    position: relative;
+                    display: inline-block;
+                    width: 60px;
+                    height: 30px;
+                    user-select: none;
+                    margin: 4px auto -2px;
+
+                    input {
+                      display: none;
+                    }
+                    input:checked + .btn-slider {
+                      background-color: rgba(135,255,123,.44);
+                      &:before {
+                        transform: translateX(26px);
+                      }
+                    }
+
+                    .btn-slider {
+                      position: absolute;
+                      cursor: pointer;
+                      top: 0;
+                      left: 0;
+                      right: 0;
+                      bottom: 0;
+                      background-color: rgba(200,200,200,.4);
+                      -webkit-transition: .4s;
+                      transition: .4s;
+
+                      &::before {
+                        position: absolute;
+                        content: "";
+                        height: 22px;
+                        width: 26px;
+                        left: 4px;
+                        bottom: 4px;
+                        background-color: white;
+                        -webkit-transition: .4s;
+                        transition: .4s;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            .plant-envs {
+              padding: 5px;
+              background: rgba(255,255,255,.2);
+              color: #dedede;
+              table {
+                width: 100%;
+                td {
+                  text-align: center;
+                  line-height: 37px;
+                  border-bottom: 1px solid #aaa;
+                }
+                td:first-child {
+                  text-align: left;
+                }
+                tr:last-child > td {
+                  border-bottom: none;
+                }
+              }
+            }
+
+            .plant-tips {
+              display: flex;
+              flex-direction: column;
+              color: #fff;
+              background: #dcffdd52;
+              padding: 8px;
+              border-radius: 8px;
+              text-align: justify;
+              border: 3px solid rgba(157, 245, 164, 0.78);
+              border-style: groove;
+              font-size: 18px;
+              
+              .plant-tips-head {
+                font-size: 22px;
+                text-decoration: underline;
+                text-decoration-style: dotted;
+                text-align: center;
+                display: inline-block;
+                margin-bottom: 10px;
+              }
+            }
+            .btn-more-tips {
+              margin: auto;
+              display: inline-block;
+              text-align: center;
+              padding: 2px 6px 1px;
+              color: #ffffff;
+              font-size: 16px;
+              border-radius: 6px;
+              border: 1px solid #ffffff;
+              border-top-color: #ffffff;
+              border-bottom: 3px solid #ffffff;
+              &:active {
+                margin-top: 2px;
+                border-bottom-width: 1px;
+              }
+            }
+          }
+          .plant-realtime-chart-wrapper {
+            border: 1px solid #fff;
+            width: 100%;
+            height: 0;
+            padding-top: 60%;
+            position: relative;
+            margin: 0 0 6px;
+
+            .plant-realtime-chart {
+              position: absolute;
+              top: 0; left: 0;
+              width: 100%;
+              height: 100%;
+            }
+          }
+        }
+
+        // Tab camera
+        .camera-panel-wrapper {
+          opacity: 0;
+          visibility: hidden;
+          max-height: 0;
+          position: relative;
+          width: calc(100% - 16px);
+          height: 0;
+          padding-top: 0;
+          margin: 0;
+          @if $effect == true {
+            transition: .3s all ease-in-out;
+          }
+
+          &.show {
+            opacity: 1;
+            visibility: visible;
+            max-height: 400px;
+            padding-top: 55%;
+            margin: 4px 8px 20px;
+          }
+          .camera-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+        }
+
+        // Thanh thông tin ngày tuổi
+        .selected-plant-timeline {
+          margin: 10px auto 30px;
+          background: #fff;
+          width: 80%;
+          height: 25px;
+          border-radius: 10px;
+          border: 3px solid rgba(255, 255, 255, 0.35);
+          background-clip: content-box;
+          position: relative;
+
+          .timeline-startday, .timeline-endday {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: -10%;
+            width: 0;
+            overflow: visible !important;
+            white-space: nowrap;
+            font-size: 20px;
+            color: #10bb67;
+          }
+          .timeline-endday {
+            left: auto;
+            right: -10%;
+            text-align: right;
+            direction: rtl;
+          }
+
+          .timeline-cur-range {
+            position: absolute;
+            width: calc(100% - 35px);
+            left: 17.25px;
+            top: 0;
+            height: 100%;
+            
+            .timeline-cur {
+              position: absolute;
+              bottom: 0;
+              left: calc(50% - 17.25px);
+              height: 50px;
+              width: 35px;
+              background: url(../assets/UI/icon/plants.svg) center 100%/100% no-repeat !important;
+            }
+          }
+          .timeline-cur-text {
+            width: 100%;
+            left: 0;
+            top: calc(100% + 4px);
+            color: #3ff99e;
+            overflow: visible !important;
+            text-align: center;
+            position: absolute;
+            font-size: 21px;
+          }
+        }
+
+        // Tên cây trồng, hiển thị dưới cùng trong quickview 1
+        .selected-plant-name {
+          background: rgba(0, 0, 0, 0.3);
+          text-align: center;
+          font-size: 24px;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          color: #fff;
+          padding: 0 0 4px;
+          opacity: 0;
+          visibility: hidden;
+          max-height: 15px;
+          overflow: hidden;
+          @if $effect == true {
+            transition: opacity .3s ease-in-out, visibility .3s ease-in-out, max-height .3s ease-in-out .1s;
+          }
+          &.show {
+            opacity: 1;
+            visibility: visible;
+            max-height: 57px;
+            @if $effect == true {
+              transition: opacity .3s ease-in-out, visibility .3s ease-in-out, max-height .3s ease-in-out;
+            }
+          }
+        }
+      }
+    }
+  }
+
+}

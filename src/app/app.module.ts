@@ -12,7 +12,7 @@ import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
 import { Settings, GardenServices } from '../providers/providers';
 import { MyApp } from './app.component';
 
-import { Hotspot, HotspotNetwork } from '@ionic-native/hotspot';
+import { Hotspot } from '@ionic-native/hotspot';
 
 // The translate loader needs to know where to load i18n files
 // in Ionic's static asset pipeline.

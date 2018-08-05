@@ -4,7 +4,6 @@ import { IonicPageModule } from 'ionic-angular';
 
 import { WelcomePage } from './welcome';
 import { GardenServices } from '../../providers/providers';
-import { GardenSync } from '../../providers/connection/sync/garden_sync';
 
 @NgModule({
   declarations: [
@@ -17,6 +16,6 @@ import { GardenSync } from '../../providers/connection/sync/garden_sync';
   exports: [
     WelcomePage
   ],
-  providers: [ GardenServices, GardenSync ]
+  providers: [ GardenServices ]
 })
 export class WelcomePageModule { }

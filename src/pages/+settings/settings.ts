@@ -91,16 +91,16 @@ export class SettingsPage {
   }
 
   ionViewDidLoad() {
-    this.gardenSvc.setup(this.connMgr);
+    // this.gardenSvc.setup(this.connMgr);
     this.gardenSvc.checkSecurity(this.curGarden, () => {});
-    this.searchingForGardens();
+    // this.searchingForGardens();
   }
   data : any;
   searchingForGardens() {
-    // this.hotspot.scanWifi().then((networks: Array<HotspotNetwork>) => {
-    //   this.data=networks;
-    //   console.log(".........hotspot..........",JSON.stringify(networks));
-    // });
+    this.hotspot.scanWifi().then((networks: Array<HotspotNetwork>) => {
+      this.data=networks;
+      console.log(".........hotspot..........",JSON.stringify(networks));
+    });
   }
 
   // Attempt to login in through our User service
@@ -142,7 +142,7 @@ export class SettingsPage {
                 this.curGarden.securityCode = securityCode;
                 this.gardenSvc.saveGarden(this.curGarden);
               } else {
-                let alert = this.alertCtrl.create
+                // let alert = this.alertCtrl.create
               }
             });
           }
@@ -214,7 +214,7 @@ export class SettingsPage {
     this.isConfigWifiStage = false;
     this.isWifiConnectedStage = true;
 
-    this.curGarden.host = "192.168.1.31:4444";
+    this.curGarden.host = "localhost:4444";
     this.gardenSvc.setCurrentGarden(this.curGarden);
     this.connMgr.setup(this.curGarden);
 

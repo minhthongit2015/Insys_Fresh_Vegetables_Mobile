@@ -1,9 +1,14 @@
 import { StationModel } from "./station";
 import { EquipmentModel } from "./equipment";
 import { UserPlantModel } from "./user_plant";
+import { SmartGardenWebSocket } from "../../providers/connection/smwebsocket";
 
 
 export class Garden {
+  public portal: string = "192.168.244.1:80";
+  public server: string = "";
+  public serverSock: SmartGardenWebSocket;
+
   public name: string = '';
   public host: string = '';            // using in LAN connect (ipv4:port)
   public domain: string = '';          // using in API connect
@@ -28,6 +33,8 @@ export class Garden {
     this.domain = dict.domain;
     this.securityCode = dict.securityCode;
     this.accessToken = dict.accessToken;
+
+    this.serverSock = new SmartGardenWebSocket();
   }
 
   public attachGardenInfo(gardenInfo) {
